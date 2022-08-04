@@ -1,3 +1,7 @@
+# For temporary test of optimal QoS measurements
+```sh
+$ ./agenda dynamic-ss --algo lazyup --lambdaq 30 --lambdau 200 --runs 5 --prefix ./data/ --dataset webstanford --with_idx
+```
 ## Tested Environment
 - Ubuntu 16
 - C++ 11

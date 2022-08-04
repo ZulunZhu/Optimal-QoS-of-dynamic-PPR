@@ -118,8 +118,8 @@ public:
         return prefix + graph_alias + FILESEP;
     }
     bool multithread = false;
-    bool with_rw_idx = false;
-	bool with_baton = false;
+    bool with_rw_idx = true;
+	bool with_baton = true;
 	bool exact = false;
 	bool reuse = false;
 	bool power_iteration=false;
@@ -135,6 +135,15 @@ public:
 
     double omega; // 1/omega  omega = # of random walk
     double rmax; // identical to r_max
+
+
+    double lambda_q = 30; //ratio of query
+    double lambda_u = 200; //ratio of update
+    double simulation_time = 30.0; //simulation time
+    int runs = 5;//multiple runs
+    double beta1 = 1.0, beta2 = 1.0; //the optimization parameters
+    bool test_throughput = false; //true when test the throuput, otherwise test the response time
+
 
     unsigned int query_size = 200;
 	unsigned int update_size = 200;
@@ -152,11 +161,13 @@ public:
 	double sigma = 0.5;
     double errorlimiter = 1.0;
     double insert_ratio = 1.0;
-	
+	double rbmax = 1;
+    double theta;
 	double n = 2.0;
-
+    int nodes, edges;
+    double response_t = 0.5;
     long graph_n = 0;
-
+    pair<double, double> mv_query, mv_update;
     unsigned int k = 500;
     double ppr_decay_alpha = 0.77;
 

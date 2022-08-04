@@ -1,0 +1,3 @@
+/home/zulun/Project/Agenda/CMakeFiles/rebuild_cache.dir
+/home/zulun/Project/Agenda/CMakeFiles/edit_cache.dir
+/home/zulun/Project/Agenda/CMakeFiles/agenda.dir

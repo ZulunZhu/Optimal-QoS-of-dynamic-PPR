@@ -1,0 +1,1 @@
+/usr/bin/c++  -std=c++11 -O3 -DNDEBUG -w -pthread -lboost_serialization -lboost_filesystem -lboost_system  -rdynamic CMakeFiles/agenda.dir/agenda.cpp.o CMakeFiles/agenda.dir/mylib.cpp.o CMakeFiles/agenda.dir/config.cpp.o  -o agenda  -lpthread -lboost_serialization -lboost_filesystem -lboost_system -larmadillo 

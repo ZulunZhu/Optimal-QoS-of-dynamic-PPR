@@ -547,11 +547,15 @@ public:
 
 uint64 rdtsc();
 
+static double get_duration(std::chrono::steady_clock::time_point startTime){
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - startTime).count()/ TIMES_PER_SEC;
+}
 
 class Timer {
 public:
     static vector<double> timeUsed;
     static vector<string> timeUsedDesc;
+    static vector<double> time_one_time;
     int id;
     std::chrono::steady_clock::time_point startTime;
     bool showOnDestroy;
@@ -560,6 +564,7 @@ public:
         this->id = id;
         while ((int) timeUsed.size() <= id) {
             timeUsed.push_back(0);
+            time_one_time.push_back(0);
             timeUsedDesc.push_back("");
         }
         timeUsedDesc[id] = desc;
@@ -570,6 +575,9 @@ public:
     static double used(int id) {
         return timeUsed[id] / TIMES_PER_SEC;
     }
+    static double used_one_time(int id) {
+        return time_one_time[id] / TIMES_PER_SEC;
+    }
 
     ~Timer() {
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - startTime).count();
@@ -577,6 +585,7 @@ public:
             cout << "time spend on " << timeUsedDesc[id] << ":" << duration / TIMES_PER_SEC << "s" << endl;
         }
         timeUsed[id] += duration;
+        time_one_time[id] = duration;
     }
 
     static void show(bool debug = false) {

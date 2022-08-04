@@ -65,7 +65,7 @@ iMap<double> upper_bounds;
 iMap<double> lower_bounds;
 
 vector<pair<int, double>> map_lower_bounds;
-
+int seed = 1;
 // for hubppr
 vector<int> hub_fwd_idx;
 //pointers to compressed fwd_idx, nodeid:{ start-pointer, start-pointer, start-pointer,...,end-pointer }
@@ -76,6 +76,29 @@ iMap<int> hub_fwd_idx_size_k;
 vector<int> hub_sample_number;
 iMap<int> hub_counter;
 
+
+double qtau1,qtau2,qtau3,utau1,utau2;
+vector<double> query_costs;
+vector<double> update_costs;
+vector<double> qtau1_vector;
+vector<double> qtau2_vector;
+vector<double> qtau3_vector;
+vector<double> utau1_vector;
+vector<double> utau2_vector;
+
+vector<double> final_throughput;
+vector<double> final_response_time;
+vector<double> final_beta1;
+vector<double> final_beta2;
+
+vector<double> final_throughput_ori;
+vector<double> final_response_time_ori;
+vector<double> final_beta1_ori;
+vector<double> final_beta2_ori;
+bool ori_finished = false;
+bool im_finished = false;
+int crowd_flag;
+bool with_op = true;
 
 map<int, vector<HubBwdidxWithResidual>> hub_bwd_idx;
 
@@ -1208,9 +1231,14 @@ void forward_local_update_linear(int s, const Graph &graph, double& rsum, double
     std::fill(idx.begin(), idx.end(), false);
 
     double myeps = rmax;//config.rmax;
-	if(config.with_baton == true)
-		myeps = config.beta/(config.omega*config.alpha);
-		
+	if(config.with_baton == true){
+        if(with_op == true){
+		    myeps = config.beta1*config.beta/(config.omega*config.alpha);
+        }else{
+            myeps = config.beta/(config.omega*config.alpha);
+        }
+    }
+	// INFO(myeps);
     vector<int> q;  //nodes that can still propagate forward
     q.reserve(graph.n);
     q.push_back(-1);

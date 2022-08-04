@@ -7,13 +7,27 @@
 #include "heap.h"
 #include "config.h"
 #include "build.h"
-
+#include "constrain.h"
+#include<numeric>
 
 //#define CHECK_PPR_VALUES 1
 //#define CHECK_TOP_K_PPR 1
 #define PRINT_PRECISION_FOR_DIF_K 1
 // std::mutex mtx;
 class fora_query_topk_with_bound;
+struct Query{
+
+    int node_id;
+    double init_time; // in seconds
+    int operator_type;  // 0: QUERY; 1: UPDATE
+    double process_time;  // in microsecs
+    Query(int id, double t1, int type, int t2) {
+        node_id = id;
+        init_time = t1;
+        operator_type = type;
+        process_time = t2;
+    }
+};
 int calc_hop(Graph graph, int u, int v){
     int hop=1;
     bool find_flag=false;
@@ -1394,26 +1408,38 @@ void fora_query_lazy_dynamic(int v, const Graph& graph, double theta){
 	
     double rsum = 1.0;
 	double temp_eps=config.epsilon;
+    config.theta = theta;
 	config.epsilon=config.epsilon*theta;
 	config.omega = (2+config.epsilon)*log(2/config.pfail)/config.delta/config.epsilon/config.epsilon;
-	
+	std::chrono::steady_clock::time_point startTime;
+    startTime = std::chrono::steady_clock::now();
     {
 		Timer timer1(FORA_QUERY);
         Timer timer(FWD_LU);
         forward_local_update_linear(v, graph, rsum, config.rmax); //forward propagation, obtain reserve and residual
     }
+    auto duration_query1 = get_duration(startTime);
+    qtau1_vector.push_back(duration_query1);
+    // qtau1 = max(duration_query1, qtau1);
+    // INFO(duration_query1);
 	config.epsilon=temp_eps;
 	
 	{
 		Timer timer(REBUILD_INDEX);	
 		lazy_update_fwdidx(graph, theta);
 	}
-	
+	auto duration_query2 = get_duration(startTime);
+    qtau2_vector.push_back(duration_query2-duration_query1);
+    // qtau2 = max(duration_query2-duration_query1, qtau2);
+    // INFO(duration_query2);
 	Timer timer(FORA_QUERY);
     // compute_ppr_with_fwdidx(graph);
 	
     compute_ppr_with_fwdidx(graph, rsum);
-
+    auto duration_query3 = get_duration(startTime);
+    qtau3_vector.push_back(duration_query3-duration_query2);
+    // qtau3 = max(duration_query3-duration_query2, qtau3);
+    // INFO(duration_query3);
 #ifdef CHECK_PPR_VALUES
     display_ppr();
 #endif
@@ -2378,6 +2404,84 @@ void batch_topk(Graph& graph){
         display_precision_for_dif_k();
     }
 }
+float nextTime(double rateParameter) {
+    return -log(1.0f - (double) rand() / (RAND_MAX + 1.0)) / rateParameter;
+}
+
+vector<double> poisson(double lambda, int T) {// T: seconds
+    vector<double> sequence;
+    double t=0;
+//    srand(time(NULL));
+    int num=0;
+    while(t < T) {
+        double element = nextTime(lambda);
+        if(t+element < T) {
+            sequence.push_back(t + element);
+            //cout<< t+element<<endl;
+        }
+        t+=element;
+        num++;
+    }
+    return sequence;
+}
+vector<Query> generate_query_workload_with_timestamp(double lambda, int T, int type, Graph& graph){
+    vector<Query> list;
+    vector<double> sequence = poisson(lambda, T);
+//    cout<<endl<<sequence.size()<<" "<<lambda*T<<endl;
+    seed +=1;
+    srand(seed+type*10);
+    int n = sequence.size();
+    for(int i=0; i < n; i++) {
+        Query query(rand()%graph.n, sequence[i], type, 0);
+        list.push_back(query);
+    }
+    return list;
+}
+void show_list(vector<Query> list_query, vector<Query> list_update){
+    for (int i =0; i<list_query.size();i++){
+        cout<<"query "<< list_query[i].node_id<<"  "<< list_query[i].init_time<<endl;
+
+    }
+    for (int i =0; i<list_update.size();i++){
+        cout<<"update "<< list_update[i].node_id<<"  "<< list_update[i].init_time<<endl;
+
+    }
+    for (int i =0; i<dynamic_workload.size();i++){
+        cout<<"load "<< i<<"  "<< dynamic_workload[i]<<endl;
+
+    }
+}
+
+void merge_dynamic_workload(vector<Query> &list_q, vector<Query> &list_u){
+    dynamic_workload.clear();
+    int query_size = list_q.size();
+	int update_size = list_u.size();
+	dynamic_workload.resize(query_size+update_size);
+	dynamic_workload.assign(query_size+update_size,DQUERY);
+    int i=0;//the posistion in query list
+	int j=0;//the position in update list
+	int k=0;//merged position
+	while(i<query_size && j<update_size){
+		if(list_q[i].init_time<=list_u[j].init_time){
+			dynamic_workload[k++]=DQUERY;
+			i++;
+		}
+		else {
+			dynamic_workload[k++]=DUPDATE;
+			j++;
+		}
+	}
+ 
+	while(i<query_size){
+		dynamic_workload[k++]=DQUERY;
+		i++;
+	}
+	while(j<update_size){
+	    dynamic_workload[k++]=DUPDATE;
+		j++;
+	}  
+}
+
 
 void generate_dynamic_workload(bool if_hybrid=false){
 	srand(10);
@@ -2424,17 +2528,617 @@ void generate_dynamic_workload(bool if_hybrid=false){
 	
 	}
 }
+void assign_cost(vector<Query> &list_query, vector<Query> &list_update, vector<double> &query_costs,vector<double> &update_costs){
+    for(int i = 0; i <list_query.size(); i++){
+        list_query[i].process_time = query_costs[i];
+        // cout<<"::::::"<<query_costs[i]<<endl;
 
-void dynamic_ssquery(Graph& graph){
-	vector<int> queries;
-    load_ss_query(queries);
+    }
+    for(int j = 0; j < list_update.size(); j++){
+        list_update[j].process_time = update_costs[j];
+
+    }
+
+}
+Query* getNext(vector<Query> &queryList, vector<Query> &insertList, int &i, int &j) {
+
+    int kind=-1;
+    int index=-1;
+    double g_time=-1;
+
+    if( i < queryList.size() ) {
+        kind = 0;
+        index= i;
+        g_time = queryList[i].init_time;
+    }
+
+    if(j < insertList.size() ){
+        if(kind == -1 || insertList[j].init_time < g_time)
+        {
+            kind = 1;
+            index= j;
+            g_time = insertList[j].init_time;
+        }
+    }
+
+    if(kind == -1) return NULL;
+    else
+    {
+        if(kind == 0) {
+            i++;
+            return &queryList[index];
+        }else{
+            j++;
+            return &insertList[index];
+        }
+    }
+}
+pair<double, double> get_me_var(vector<double> query_costs){
+    double sum = std::accumulate(std::begin(query_costs), std::end(query_costs), 0.0);
+
+    double mean = sum / query_costs.size(); //mean
+
+    double accum = 0.0;
+
+    std::for_each (std::begin(query_costs), std::end(query_costs), [&](const double d) {
+
+        accum += (d-mean)*(d-mean);
+
+    });
+
+    double var = accum/(query_costs.size()-1); //variance
+    return pair<double,double>(mean, var);
+
+}
+void load_id_from_list(vector<int> &queries, vector<Query> &list_query){
+    for(int i = 0; i<list_query.size();i++){
+        queries.push_back(list_query[i].node_id);
+    }
+}
+
+void regenerate_updates(Graph graph,vector<pair<int,int>> &updates,vector<Query> &list_update){
+	int n=graph.n;
+    bool if_delete;
+    if_delete = ((rand()%1000)/1000.0 > config.insert_ratio);
+	for(int i=0; i<list_update.size();){
+		bool flag=false;
+        int u = rand()%n;
+		int v = rand()%n;
+        
+		if(u!=v){
+			for (int next : graph.g[u]) {
+				if(next==v){
+					flag=true;
+				}	
+			}
+			if(flag==if_delete){
+				i++;
+                if_delete = ((rand()%1000)/1000.0 > config.insert_ratio);
+				pair<int,int> update;
+                update.first=u;
+                update.second=v;
+                updates.push_back(update);
+			}
+		}
+    }
+}
+
+
+pair<double, double> simulator_FIFO(vector<Query> &list_query, vector<Query> &list_update){
+    assert(config.simulation_time < 10000);
+    vector<double> simulated_query_costs;
+    vector<double> simulated_update_costs;
+    int total_time = config.simulation_time;
+    int i=0, j=0;
+    int count = 0; // the number of queries processed.
+
+    double avg_response_time = 0.0;
+    Query* current_query;
+
+    double c_time=0;  // current time for processing queries
+
+    while(c_time <= total_time) {
+        current_query = getNext(list_query, list_update, i, j);
+        if (current_query == NULL) {
+            break;
+        }
+        // cout<<"c_time: "<<c_time<<"current_query->init_time: "<< current_query->init_time<<"current_query->process_time"<<current_query->process_time<<endl;
+        c_time = max(c_time, current_query->init_time);
+        
+        if(c_time + current_query->process_time <= total_time) {
+            if(current_query->operator_type == DQUERY) {
+                count++;
+                simulated_query_costs.push_back(current_query->process_time);
+                avg_response_time +=  c_time -  current_query->init_time+ current_query->process_time;
+            }
+            else{
+                simulated_update_costs.push_back(current_query->process_time);
+            }
+            c_time +=  current_query->process_time;
+        } else {
+            break;
+        }
+    }
+    //cout<<"Avg_response_time " << avg_response_time / count / 1000000 <<endl;
+    if(simulated_update_costs.size()<simulated_update_costs.size()*0.95)
+        return pair<double,double>(count * 1.0 / config.simulation_time, -1);
+    else
+        return pair<double,double>(count * 1.0 / config.simulation_time, avg_response_time / count);
+}
+void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query> list_update, vector<pair<int,int>> updates){
+	query_costs.clear();
+    update_costs.clear();
+    qtau1_vector.clear();
+    qtau2_vector.clear();
+    qtau3_vector.clear();
+    utau1_vector.clear();
+    utau2_vector.clear();
+
+    with_op = false;
+    
+    vector<int> queries;
+    // load_ss_query(queries);
+
+    load_id_from_list(queries,list_query);
     INFO(queries.size());
     unsigned int query_size = queries.size();
-    query_size = min( query_size, config.query_size );
+    query_size = max( query_size, config.query_size);
     int used_counter=0;
 	ppr.init_keys(graph.n);
-	vector<pair<int,int>> updates;
-	load_update(updates);
+	
+	// load_update(updates);
+    
+    
+	INFO(updates.size());
+	
+	bool IF_OUTPUT=false;
+	int query_count=0;
+	int update_count=0;
+	int test_k=0;
+	if(config.algo == FORA){ //fora
+        fora_setting(graph.n, graph.m);
+        display_setting();
+
+        fwd_idx.first.initialize(graph.n);
+        fwd_idx.second.initialize(graph.n);
+		
+        for(int i=0; i<dynamic_workload.size(); i++){
+            if(i%1000==0){
+                cout<<"----------------------------------"<<endl;
+			    cout<<"operation "<<i<<endl;
+            }
+            
+			Timer timer(0);
+            /*
+			if(i!=(dynamic_workload.size()-1)){
+				if(dynamic_workload[i+1]!=DQUERY&&dynamic_workload[i]!=DQUERY){
+					continue;
+				}
+			}
+            */
+            if(dynamic_workload[i]==DUPDATE){
+				int u,v;
+				u=updates[update_count].first;
+				v=updates[update_count].second;
+				update_count++;
+                update_graph(graph, u, v);
+				
+				if(!config.exact&&config.with_rw_idx){
+                    if(config.alter_idx == 0){
+					    rebuild_idx(graph);
+                    }
+                    else{
+                        rebuild_idx_vldb2010(graph, u, v, 1);
+                    }
+                    
+				}
+			}else if(dynamic_workload[i]==DQUERY){
+				fora_query_basic(queries[query_count++], graph);
+			}
+        }
+		Timer::show();
+		ofstream result_file;
+		result_file.open("result/"+config.graph_alias+"/fora.txt");
+		result_file<<config.check_size<<endl;
+        if(config.check_from!=0){
+            INFO(config.check_from);
+            query_count=config.check_from;
+        }
+		for(int i=0; i<config.check_size; i++){
+			cerr<<i;
+			fora_query_basic(queries[query_count++], graph);
+			output_imap(ppr, result_file, test_k);
+		}
+		cout<<endl;
+	}
+	else if(config.algo == BATON){ //fora
+        fora_setting(graph.n, graph.m);
+        display_setting();
+
+        fwd_idx.first.initialize(graph.n);
+        fwd_idx.second.initialize(graph.n);
+		
+        for(int i=0; i<dynamic_workload.size(); i++){
+            cout<<"----------------------------------"<<endl;
+			cout<<"operation "<<i<<endl;
+			Timer timer(0);
+            if(dynamic_workload[i]==DUPDATE){
+				Timer timer(REBUILD_INDEX);
+				int u,v;
+                bool is_insert = true;
+                u=updates[update_count].first;
+                v=updates[update_count].second;
+                update_count++;
+                update_graph(graph, u, v);
+                if(!config.exact&&config.with_rw_idx){
+                    if(config.alter_idx == 0){
+					    rebuild_idx(graph);
+                    }
+                    else{
+                        rebuild_idx_vldb2010(graph, u, v, 1);
+                    }
+                    
+				}
+			}else if(dynamic_workload[i]==DQUERY){
+				if(!config.exact){
+					fora_query_basic(queries[query_count++], graph);
+				}else{
+					query_count++;
+				}
+			}
+			
+			
+        }
+		Timer::show();
+		ofstream result_file;
+		if(config.check_size>0){
+			if(config.with_rw_idx){
+				Timer timer(REBUILD_INDEX);
+				rebuild_idx(graph);
+			}
+			if(config.exact)
+				result_file.open("result/"+config.graph_alias+"/exact.txt");
+			else
+				result_file.open("result/"+config.graph_alias+"/baton.txt");
+			result_file<<config.check_size<<endl;
+		}
+        if(config.check_from!=0){
+            query_count=config.check_from;
+        }
+		for(int i=0; i<config.check_size; i++){
+			cerr<<i;
+			if(config.power_iteration&&config.exact){
+				unordered_map<int, double> map_ppr;
+				{
+					Timer timer(PI_QUERY);
+					fwd_power_iteration(graph, queries[query_count++], map_ppr);
+				}
+				//Timer::show();
+				vector<pair<int ,double>> temp_top_ppr;
+				temp_top_ppr.clear();
+				temp_top_ppr.resize(map_ppr.size());
+				partial_sort_copy(map_ppr.begin(), map_ppr.end(), temp_top_ppr.begin(), temp_top_ppr.end(), 
+					[](pair<int, double> const& l, pair<int, double> const& r){return l.second > r.second;});
+				int non_zero_counter=0;
+				for(long j=0; j<temp_top_ppr.size(); j++){
+					if(temp_top_ppr[j].second>0)
+						non_zero_counter++;
+				}
+				result_file << non_zero_counter << endl;
+				for(int j=0; j< non_zero_counter; j++){
+					result_file << j << "\t" << temp_top_ppr[j].first << "\t" << temp_top_ppr[j].second << endl;
+				}
+			}
+			else {
+				fora_query_basic(queries[query_count++], graph);
+				output_imap(ppr, result_file, test_k);
+			}
+		}
+		cout<<endl;
+    }
+	else if(config.algo == PARTUP){
+	
+        fora_setting(graph.n, graph.m);
+        display_setting();
+		
+		reverse_idx.first.initialize(graph.n);
+        reverse_idx.second.initialize(graph.n);
+		fwd_idx.first.initialize(graph.n);
+        fwd_idx.second.initialize(graph.n);
+		
+		int T_count=0;
+		double T=16.0;
+		double rsum_bound=graph.m*config.epsilon*config.epsilon/4/graph.n/(2*config.epsilon/3+2)/config.alpha/log(2/config.pfail);
+		INFO(rsum_bound);
+        for(int i=0; i<dynamic_workload.size(); i++){
+			Timer timer(0);
+            if(dynamic_workload[i]==DUPDATE){
+				int u,v;
+				u=updates[update_count].first;
+				v=updates[update_count].second;
+				update_count++;
+				double errorlimit=config.epsilon*1.0/graph.n/config.alpha*graph.g[u].size()/T/rsum_bound;
+				double epsrate=0.5;
+				double sigma=0.5;
+				
+				if(T_count<T-4){
+					
+					if(errorlimit==0){
+						continue;
+					}
+					
+					INFO(errorlimit*epsrate);
+					
+					{
+						Timer timer(11);
+						reverse_push(u, graph, errorlimit*epsrate, 1);
+					}
+                    update_graph(graph, u, v);
+					{
+						Timer timer(12);
+						if(reverse_idx.first.occur.m_num>1+graph.gr[u].size()){
+							T_count++;
+							for(long j=0; j<reverse_idx.first.occur.m_num; j++){
+								long id = reverse_idx.first.occur[j];
+								//cout<<"id: "<<id<<"  reserve: "<<reverse_idx.first[id]<<" residue "<<reverse_idx.second[id]<<endl;
+								if(reverse_idx.first[id]>errorlimit*(1-epsrate)){
+									update_idx(graph, id);
+								}
+							}
+						}else{
+							for(long j=0; j<reverse_idx.first.occur.m_num; j++){
+								long id = reverse_idx.first.occur[j];
+									update_idx(graph, id);
+							}
+						}
+					}
+				}else{
+					Timer timer(REBUILD_INDEX);
+					T_count=0;
+					update_graph(graph, u, v);
+					rebuild_idx(graph);
+				}
+				
+				
+			}else if(dynamic_workload[i]==DQUERY){
+				fora_query_dynamic(queries[query_count++], graph, T_count/T);
+			}
+        }
+		if(config.check_size>0){
+			Timer::show();
+			ofstream result_file;
+			result_file.open("result/"+config.graph_alias+"/partup.txt");
+			result_file<<config.check_size<<endl;
+			for(int i=0; i<config.check_size; i++){
+				cerr<<i;
+				fora_query_dynamic(queries[query_count++], graph,  T_count/T);
+				output_imap(ppr, result_file, test_k);
+			}
+			cout<<endl;
+		}
+    }
+    else if(config.algo == LAZYUP){//**************************************Used*********************
+        fora_setting(graph.n, graph.m);
+        // display_setting();
+		fwd_idx.first.initialize(graph.n);
+        fwd_idx.second.initialize(graph.n);
+        reverse_idx.first.initialize(graph.n);
+        reverse_idx.second.initialize(graph.n);
+		inacc_idx.reserve(graph.n);
+		inacc_idx.assign(graph.n, 1);
+		double theta=0.8;
+        Timer timer(0);
+        for(int i=0; i<dynamic_workload.size(); i++){
+            if(i%1000==0){
+                cout<<"----------------------------------"<<endl;
+                cout<<"operation "<<i<<endl;
+            }
+			std::chrono::steady_clock::time_point startTime;
+            startTime = std::chrono::steady_clock::now();
+            
+            if(dynamic_workload[i]==DUPDATE){
+				int u,v;
+                
+				u=updates[update_count].first;
+				v=updates[update_count].second;
+				update_count++;
+				//double errorlimit=config.epsilon*1.0/graph.n/(1-config.alpha)*config.alpha*graph.g[u].size();
+				// double errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n;
+                double errorlimit=1.0/graph.n;
+				double epsrate=1;
+				// if(graph.n < 300000){
+				// 	errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n*10;
+                //     INFO(errorlimit);
+				// }
+				if(errorlimit==0){
+					continue;
+				}
+				
+                config.rbmax = errorlimit*epsrate;
+				{
+					reverse_push(u, graph, errorlimit*epsrate, 1);
+                    
+				}
+                auto duration_update1 = get_duration(startTime);
+                // INFO(duration_update1);
+                utau1_vector.push_back(duration_update1);
+                // utau1 = max(duration_update1, utau1);
+                
+
+				update_graph(graph, u, v);
+				
+				{
+					
+					for(long j=0; j<graph.n; j++){
+                    //long id = reverse_idx.first.occur[j];
+                        long id = j;
+                        double pmin;
+                        if(reverse_idx.first.exist(id))
+                            pmin=min((reverse_idx.first[id]+errorlimit*epsrate)*(1-config.alpha)/config.alpha,1.0);
+                        else
+                            pmin=min((errorlimit*epsrate)*(1-config.alpha)/config.alpha,1.0);
+                        //double pmin=(reverse_idx.first[id]+errorlimit*epsrate)/config.alpha;
+                        inacc_idx[id]*=(1-pmin/graph.g[u].size());
+                    }
+                    
+				}
+                auto duration_update2 = get_duration(startTime);
+                // INFO(duration_update2);
+                utau2_vector.push_back(duration_update2-duration_update1);
+                // utau2 = max(duration_update2-duration_update1, utau2);
+                Timer timer(11);
+                update_costs.push_back(duration_update2);
+                
+                
+			}else if(dynamic_workload[i]==DQUERY){
+				fora_query_lazy_dynamic(queries[query_count++], graph, theta);
+                Timer timer(12);
+                //show query time
+                auto duration_query = get_duration(startTime);
+                
+                query_costs.push_back(duration_query);
+                // INFO(duration_query);
+			}
+        }
+        ASSERT(query_costs.size()==list_query.size()&&update_costs.size()==list_update.size());
+        assign_cost(list_query, list_update, query_costs, update_costs);
+        auto result = simulator_FIFO(list_query, list_update);
+        config.mv_query = get_me_var(query_costs);
+        config.mv_update = get_me_var(update_costs);
+        qtau1 = get_me_var(qtau1_vector).first;
+        qtau2 = get_me_var(qtau2_vector).first;
+        qtau3 = get_me_var(qtau3_vector).first;
+        utau1 = get_me_var(utau1_vector).first;
+        utau2 = get_me_var(utau2_vector).first;
+
+        cout<<"********************************************************************"<<endl;
+
+        cout<<"Query size: "<< list_query.size()<<endl;
+        cout<<"Query mean: "<< config.mv_query.first<<"variance: "<<config.mv_query.second<<endl;
+
+        cout<<"Update size: "<< list_update.size()<<endl;
+        cout<<"Update mean: "<< config.mv_update.first<<"variance: "<<config.mv_update.second<<endl;
+
+        cout<<"Throughput "<< result.first<< endl;
+        cout<<"Response time "<< result.second<< endl;
+        cout<<" updates[43].first "<< updates[43].first<<endl;
+        double t_sum = config.mv_query.first*config.lambda_q+config.mv_update.first*config.lambda_u;
+        if(t_sum>=1){
+            INFO(t_sum);
+            crowd_flag = 1;
+            cerr<<"Arrival rates for query and update are too high!  Lambda_q = "<< config.lambda_q <<endl;
+            // exit(0);
+        }
+        
+        final_throughput_ori.push_back(result.first);
+        final_response_time_ori.push_back(result.second);
+        
+        auto opt_result = improve_throughput();
+        
+        final_beta1_ori.push_back(opt_result.first);
+        final_beta2_ori.push_back(opt_result.second);
+        
+
+        // output the log file
+        string filename = config.graph_location + "result.txt";
+        ofstream queryfile(filename, ios::app);
+        
+        queryfile<<"***" <<" OA t_q: "<< config.mv_query.first<<"t_u: "<<
+         config.mv_update.first<<" Throughput "<< 
+         result.first<<" Average response time "<< result.second<< "  Crowded = "<< t_sum <<endl;
+        queryfile<< " Optimized beta = "<< opt_result.first<< "  "<< opt_result.second<<endl;
+        
+        queryfile.close();
+        config.beta1 = opt_result.first;
+        config.beta2 = opt_result.second;
+
+		if(config.check_size>0){
+			// Timer::show();
+			ofstream result_file;
+			result_file.open("result/"+config.graph_alias+"/lazyup.txt");
+			result_file<<config.check_size<<endl;
+
+            if(config.check_from!=0){
+                INFO(config.check_from);
+                query_count=config.check_from;
+            }
+			for(int i=0; i<config.check_size; i++){
+				cerr<<i;
+				fora_query_lazy_dynamic(queries[query_count++], graph, theta);
+				output_imap(ppr, result_file, test_k);
+			}
+			cout<<endl;
+		}
+    }
+	else if(config.algo == RESACC){ //fora
+        fora_setting(graph.n, graph.m);
+        display_setting();
+
+        fwd_idx.first.initialize(graph.n);
+        fwd_idx.second.initialize(graph.n);
+		
+        for(int i=0; i<dynamic_workload.size(); i++){
+            cout<<"----------------------------------"<<endl;
+			cout<<"operation "<<i<<endl;
+			Timer timer(0);
+            if(dynamic_workload[i]==DUPDATE){
+				int u,v;
+				u=updates[update_count].first;
+				v=updates[update_count].second;
+				update_count++;
+				update_graph(graph, u, v);
+			}else if(dynamic_workload[i]==DQUERY){
+				resacc_query(queries[query_count++], graph);
+			}
+        }
+		Timer::show();
+		ofstream result_file;
+		result_file.open("result/"+config.graph_alias+"/resacc.txt");
+		result_file<<config.check_size<<endl;
+        if(config.check_from!=0){
+                INFO(config.check_from);
+                query_count=config.check_from;
+            }
+		for(int i=0; i<config.check_size; i++){
+			cerr<<i;
+			resacc_query(queries[query_count++], graph);
+			output_imap(ppr, result_file, test_k);
+		}
+		cout<<endl;
+	}
+	set_result(graph, used_counter, query_size);
+	cout<<"trw:"<<num_total_rw<<endl;
+	cout<<"hrw:"<<num_hit_idx<<endl;
+}
+
+void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Query> list_update,vector<pair<int,int>> updates){
+	// reset the vectors
+    query_costs.clear();
+    update_costs.clear();
+    qtau1_vector.clear();
+    qtau2_vector.clear();
+    qtau3_vector.clear();
+    utau1_vector.clear();
+    utau2_vector.clear();
+
+    
+  
+
+    with_op = true;
+
+    vector<int> queries;
+    // load_ss_query(queries);
+
+    load_id_from_list(queries,list_query);
+    INFO(queries.size());
+    unsigned int query_size = queries.size();
+    query_size = max( query_size, config.query_size );
+    int used_counter=0;
+	ppr.init_keys(graph.n);
+	
+	// load_update(updates);
+    
+    
 	INFO(updates.size());
 	
 	bool IF_OUTPUT=false;
@@ -2660,9 +3364,9 @@ void dynamic_ssquery(Graph& graph){
 			cout<<endl;
 		}
     }
-    else if(config.algo == LAZYUP){
+    else if(config.algo == LAZYUP){//**************************************Used*********************
         fora_setting(graph.n, graph.m);
-        display_setting();
+        // display_setting();
 		fwd_idx.first.initialize(graph.n);
         fwd_idx.second.initialize(graph.n);
         reverse_idx.first.initialize(graph.n);
@@ -2670,47 +3374,139 @@ void dynamic_ssquery(Graph& graph){
 		inacc_idx.reserve(graph.n);
 		inacc_idx.assign(graph.n, 1);
 		double theta=0.8;
+        Timer timer(0);
+        
         for(int i=0; i<dynamic_workload.size(); i++){
-            cout<<"----------------------------------"<<endl;
-			cout<<"operation "<<i<<endl;
-			Timer timer(0);
+            if(i%1000==0){
+                cout<<"----------------------------------"<<endl;
+                cout<<"operation "<<i<<endl;
+            }
+			std::chrono::steady_clock::time_point startTime;
+            startTime = std::chrono::steady_clock::now();
+            
             if(dynamic_workload[i]==DUPDATE){
 				int u,v;
-				
+                
 				u=updates[update_count].first;
 				v=updates[update_count].second;
 				update_count++;
 				//double errorlimit=config.epsilon*1.0/graph.n/(1-config.alpha)*config.alpha*graph.g[u].size();
-				double errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n;
-				double epsrate=0.5;
-				if(graph.n < 300000){
-					errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n*10;
-                    INFO(errorlimit);
-				}
+				double errorlimit=1.0/graph.n;
+				double epsrate=1;
+				// if(graph.n < 300000){
+				// 	errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n*10;
+                //     INFO(errorlimit);
+				// }
 				if(errorlimit==0){
 					continue;
 				}
-				INFO(errorlimit*epsrate);
+
+                config.rbmax = errorlimit*epsrate;
 				{
-					Timer timer(11);
-					reverse_push(u, graph, errorlimit*epsrate, 1);
+					reverse_push(u, graph, config.beta2*errorlimit*epsrate, 1);
+                    
 				}
+                auto duration_update1 = get_duration(startTime);
+                // INFO(duration_update1);
+                utau1_vector.push_back(duration_update1);
+                // utau1 = max(duration_update1, utau1);
+                
+
 				update_graph(graph, u, v);
 				
 				{
-					Timer timer(12);	
-					for(long j=0; j<reverse_idx.first.occur.m_num; j++){
-						long id = reverse_idx.first.occur[j];
-						double pmin=min((reverse_idx.first[id]+errorlimit*epsrate)*(1-config.alpha)/config.alpha,1.0);
-						inacc_idx[id]*=(1-pmin/graph.g[u].size());
-					}
+					
+					for(long j=0; j<graph.n; j++){
+                    //long id = reverse_idx.first.occur[j];
+                        long id = j;
+                        double pmin;
+                        if(reverse_idx.first.exist(id))
+                            pmin=min((reverse_idx.first[id]+errorlimit*epsrate)*(1-config.alpha)/config.alpha,1.0);
+                        else
+                            pmin=min((errorlimit*epsrate)*(1-config.alpha)/config.alpha,1.0);
+                        //double pmin=(reverse_idx.first[id]+errorlimit*epsrate)/config.alpha;
+                        inacc_idx[id]*=(1-pmin/graph.g[u].size());
+                    }
+                    
 				}
+                auto duration_update2 = get_duration(startTime);
+                // INFO(duration_update2);
+                utau2_vector.push_back(duration_update2-duration_update1);
+                // utau2 = max(duration_update2-duration_update1, utau2);
+                Timer timer(11);
+                update_costs.push_back(duration_update2);
+                
+                
 			}else if(dynamic_workload[i]==DQUERY){
 				fora_query_lazy_dynamic(queries[query_count++], graph, theta);
+                Timer timer(12);
+                //show query time
+                auto duration_query = get_duration(startTime);
+                
+                query_costs.push_back(duration_query);
+                // INFO(duration_query);
 			}
         }
+        ASSERT(query_costs.size()==list_query.size()&&update_costs.size()==list_update.size());
+        assign_cost(list_query, list_update, query_costs, update_costs);
+        auto result = simulator_FIFO(list_query, list_update);
+        config.mv_query = get_me_var(query_costs);
+        config.mv_update = get_me_var(update_costs);
+        qtau1 = get_me_var(qtau1_vector).first;
+        qtau2 = get_me_var(qtau2_vector).first;
+        qtau3 = get_me_var(qtau3_vector).first;
+        utau1 = get_me_var(utau1_vector).first;
+        utau2 = get_me_var(utau2_vector).first;
+
+        cout<<"********************************************************************"<<endl;
+
+        cout<<"Query size: "<< list_query.size()<<endl;
+        cout<<"Query mean: "<< config.mv_query.first<<"variance: "<<config.mv_query.second<<endl;
+
+        cout<<"Update size: "<< list_update.size()<<endl;
+        cout<<"Update mean: "<< config.mv_update.first<<"variance: "<<config.mv_update.second<<endl;
+
+        cout<<"Throughput "<< result.first<< endl;
+        cout<<"Response time "<< result.second<< endl;
+        // cout<<" updates[43].first "<< updates[43].first<<endl;
+        double t_sum = config.mv_query.first*config.lambda_q+config.mv_update.first*config.lambda_u;
+        if(t_sum>=1){
+            INFO(t_sum);
+            crowd_flag = 1;
+            cerr<<"Arrival rates for query and update are too high!  Lambda_q = "<< config.lambda_q <<endl;
+            // exit(0);
+        }
+        
+        final_throughput.push_back(result.first);
+        final_response_time.push_back(result.second);
+        
+        // auto opt_result = improve_throughput();
+        // final_beta1.push_back(opt_result.first);
+        // final_beta2.push_back(opt_result.second);
+        
+
+        // output the log file
+        string filename = config.graph_location + "result.txt";
+        ofstream queryfile(filename, ios::app);
+        
+        queryfile<<"IA t_q: "<< config.mv_query.first<<"t_u: "<<
+         config.mv_update.first<<" Throughput "<< 
+         result.first<<" Average response time "<< result.second<< "  Crowded = "<< t_sum <<"\n"<<
+         "\n"<<"\n"<<endl;
+
+
+
+        // queryfile<< " Optimized beta = "<< opt_result.first<< "  "<< opt_result.second<<endl;
+        
+        queryfile.close();
+        // if(config.test_throughput==true){
+        //     config.beta1 = opt_result.first;
+        //     config.beta2 = opt_result.second;
+
+        // }
+        
 		if(config.check_size>0){
-			Timer::show();
+			// Timer::show();
 			ofstream result_file;
 			result_file.open("result/"+config.graph_alias+"/lazyup.txt");
 			result_file<<config.check_size<<endl;

@@ -20,7 +20,8 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # The following folder will be included
 include_directories("${PROJECT_SOURCE_DIR}")
-
+find_package(Armadillo REQUIRED)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 #add_library(mylib ${PROJECT_SOURCE_DIR}/mylib.cpp ${PROJECT_SOURCE_DIR}/mylib.h)
 #add_library(config ${PROJECT_SOURCE_DIR}/config.cpp ${PROJECT_SOURCE_DIR}/config.h)
@@ -28,4 +29,5 @@ include_directories("${PROJECT_SOURCE_DIR}")
 add_executable(agenda ${PROJECT_SOURCE_DIR}/agenda.cpp ${PROJECT_SOURCE_DIR}/mylib.cpp ${PROJECT_SOURCE_DIR}/config.cpp)
 #add_executable(HubPPR hubppr.cpp ${PPRLIB} ${HEADER})
 
-target_link_libraries(agenda pthread boost_serialization boost_filesystem boost_system)
+target_link_libraries(agenda pthread boost_serialization boost_filesystem boost_system ${ARMADILLO_LIBRARIES})
+ 

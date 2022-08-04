@@ -24,7 +24,7 @@ int Counter::cnt[1000] = {0};
 
 vector<double> Timer::timeUsed;
 vector<string> Timer::timeUsedDesc;
-
+vector<double> Timer::time_one_time;
 
 #ifndef WIN32
 #ifdef __CYGWIN__
