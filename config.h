@@ -139,11 +139,11 @@ public:
 
     double lambda_q = 30; //ratio of query
     double lambda_u = 200; //ratio of update
-    double simulation_time = 30.0; //simulation time
+    double simulation_time = 10.0; //simulation time
     int runs = 5;//multiple runs
-    double beta1 = 1.0, beta2 = 1.0; //the optimization parameters
+    double beta1 = 1.0, beta2 = 1; //the optimization parameters
     bool test_throughput = false; //true when test the throuput, otherwise test the response time
-
+    double response_t = 0.5;
 
     unsigned int query_size = 200;
 	unsigned int update_size = 200;
@@ -165,7 +165,8 @@ public:
     double theta;
 	double n = 2.0;
     int nodes, edges;
-    double response_t = 0.5;
+    int show_each;
+    
     long graph_n = 0;
     pair<double, double> mv_query, mv_update;
     unsigned int k = 500;

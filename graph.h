@@ -74,9 +74,10 @@ public:
         while (fscanf(fin, "%d%d", &t1, &t2) != EOF) {
             assert(t1 < n);
             assert(t2 < n);
-            if(t1 == t2) continue;
+            if(t1 == t2) continue;          
             g[t1].push_back(t2);
             gr[t2].push_back(t1);
+                      
         }
     }
 

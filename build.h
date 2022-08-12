@@ -721,6 +721,7 @@ void update_idx(const Graph& graph, int source){
 	//if(config.with_baton == true)
 		//num_rw = ceil(graph.g[source].size()*config.beta/config.alpha);
 	unsigned long begin_idx = rw_idx_info[source].first;
+    // INFO(num_rw);
 	for(unsigned long i=0; i<num_rw; i++){ //for each node, do some rand-walks
 		unsigned long destination = random_walk(source, graph);
 		// rw_idx[source].push_back(destination);

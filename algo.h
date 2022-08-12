@@ -8,6 +8,7 @@
 #include <tuple>
 #include <unordered_set>
 #include <boost/random.hpp>
+#include<ctime>
 // #include "sfmt/SFMT.h"
 
 
@@ -98,7 +99,7 @@ vector<double> final_beta2_ori;
 bool ori_finished = false;
 bool im_finished = false;
 int crowd_flag;
-bool with_op = true;
+bool with_op = false;
 
 map<int, vector<HubBwdidxWithResidual>> hub_bwd_idx;
 
@@ -179,6 +180,7 @@ inline int random_walk(int start, const Graph& graph){
         }
     }
 }
+
 
 inline int random_walk_no_zero_hop(int start, const Graph& graph){
     int cur = start;
@@ -405,6 +407,7 @@ inline void display_setting(){
     INFO(config.pfail);
     INFO(config.rmax);
     INFO(config.omega);
+    INFO(config.theta);
 }
 
 inline void display_fwdidx(){
@@ -1232,11 +1235,9 @@ void forward_local_update_linear(int s, const Graph &graph, double& rsum, double
 
     double myeps = rmax;//config.rmax;
 	if(config.with_baton == true){
-        if(with_op == true){
-		    myeps = config.beta1*config.beta/(config.omega*config.alpha);
-        }else{
-            myeps = config.beta/(config.omega*config.alpha);
-        }
+        
+        myeps = config.beta/(config.omega*config.alpha);
+        
     }
 	// INFO(myeps);
     vector<int> q;  //nodes that can still propagate forward

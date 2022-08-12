@@ -108,7 +108,13 @@ int main(int argc, char *argv[]) {
             config.graph_alias = argv[i + 1];
         }
     }
+    if(config.graph_alias=="webstanford"){
+            config.show_each=1000;
 
+        }else{
+            config.show_each=1;
+
+        }
     for (int i = 0; i < argc; i++) {
         string arg = argv[i];
         if (arg == "--algo") {
@@ -122,8 +128,12 @@ int main(int argc, char *argv[]) {
         }else if (arg == "--lambdau") {
         config.lambda_u = atof(argv[i + 1]);
         INFO(config.lambda_u);
+        }else if (arg == "--responsetime") {
+        config.response_t = atof(argv[i + 1]);
+        INFO(config.response_t);
         }else if (arg == "--timewin") {
         config.simulation_time = atof(argv[i + 1]);
+        INFO(config.simulation_time);
         }else if (arg == "--runs") {
         config.runs = atof(argv[i + 1]);
         }else if(arg == "--throughput"){
@@ -510,6 +520,8 @@ int main(int argc, char *argv[]) {
                 vector<pair<int,int>> updates;
                 regenerate_updates(graph, updates,list_update);
                 dynamic_ssquery_origin(graph, list_query, list_update,updates);
+                Graph graph(config.graph_location);
+                INFO("load graph finish");
                 dynamic_ssquery_with_op(graph, list_query, list_update,updates);
 
             }
@@ -564,8 +576,8 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // Timer::show();
-	// INFO(config.beta);
+    Timer::show();
+	INFO(config.beta);
 	
     if(config.action == QUERY || config.action == TOPK || config.action == DYNAMIC_SS){
         Counter::show();

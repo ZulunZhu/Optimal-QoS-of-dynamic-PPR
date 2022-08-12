@@ -44,6 +44,7 @@ class ConstrainedFunctionType
   double a,b,c,d;
   bool plot = false;
   void calculate_para(arma::mat x){
+
     double tau0 = qtau1*x(0,0)/config.omega;
     double epsilon = config.epsilon/config.theta;
     double tau1 = qtau2*(1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega/
@@ -53,6 +54,8 @@ class ConstrainedFunctionType
 
     a = config.edges*(config.nodes*config.rbmax*tau1)/
     ((1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega);
+
+   
 
     b = config.edges*tau1/((1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega)+
     config.edges*tau2/(config.alpha*config.nodes);
@@ -76,7 +79,8 @@ class ConstrainedFunctionType
     double t_q = a*x(0,0)*x(0,1)+b*x(0,0)+c/x(0,0);
     double t_u = d/x(0,1)+utau2;
     double y;
-
+    // INFO(t_q);
+    // INFO(t_u);
     // if(config.test_throughput==true){
     //   // ***Optimize the lambda_q
     //   double fx = (2*(config.response_t-t_q)*(1-config.lambda_u*t_u)-config.lambda_u*(config.mv_update.second+t_u*t_u))/
@@ -206,7 +210,7 @@ class ConstrainedFunctionType
       }
 
       case 1: if (t_q-config.response_t>0){
-        return (t_q-config.response_t)*1;
+        return (t_q-config.response_t)*100;
         break;
       }
       else{
@@ -214,7 +218,7 @@ class ConstrainedFunctionType
         break;
       }
       case 2: if (-x(0,0)>0){
-        return (-x(0,0))*1;
+        return (-x(0,0))*100;
         break;
       }
       else{
@@ -222,7 +226,7 @@ class ConstrainedFunctionType
         break;
       }
       case 3: if (-x(0,1)>0){
-        return (-x(0,1))*1;
+        return (-x(0,1))*100;
         break;
       }
       else{
@@ -260,20 +264,26 @@ pair<double,double> improve_throughput()
   x = {1.0, 1.0};
   original = x;
   ConstrainedFunctionType f;
-  f.calculate_para(x);
+  f.calculate_para(original);
   
   ens::AugLagrangian optimizer(1500,0.25,10);
   optimizer.Optimize(f, x);
   // output the log file
   string filename = config.graph_location + "result.txt";
   ofstream queryfile(filename, ios::app);
-  queryfile << "======Tau0 is " <<f.a<<" "<< f.b<<" "<<f.c<<" "<<f.d<<" "<<
+  char str[50];
+  time_t now = time(NULL);
+  strftime(str, 50, "%x %X", localtime(&now));
+  queryfile << str<<endl;
+  queryfile << "======Tau0 is " <<f.a<<" "<< f.b<<" "<<f.c<<" "<<f.d<<" "<<utau2<<
     " "<<endl;
+  queryfile<<"Original tq is "<< f.a*original(0,0)*original(0,1)+f.b*original(0,0)+f.c/original(0,0)<<endl;
+  queryfile<<"optimal tq is "<< f.a*x(0,0)*x(0,1)+f.b*x(0,0)+f.c/x(0,0)<<endl;
   queryfile << "Optimal X is " << x<< " "<<f.EvaluateConstraint(0,x)<< " "<<f.EvaluateConstraint(1,x)<< " "<<f.EvaluateConstraint(2,x)<< " "<<f.EvaluateConstraint(3,x)<< " "<<endl;
   queryfile << "original fx " << f.Evaluate(original) <<" "<<endl;
   queryfile << "Minimum of the function is " << f.Evaluate(x)<<endl;
   queryfile.close();
-  if(x(0,0) ==0){
+  if(x(0,0) <=0||x(0,1)<=0){
     x(0,0)=config.beta1;
     x(0,1)=config.beta2;
   }
