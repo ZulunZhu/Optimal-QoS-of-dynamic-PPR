@@ -9,7 +9,6 @@
 #include <unordered_set>
 #include <boost/random.hpp>
 #include<ctime>
-<<<<<<< HEAD
 
 // #include "sfmt/SFMT.h"
 class LeastSquare{  
@@ -36,10 +35,6 @@ public:
     }  
 
 };  
-=======
-// #include "sfmt/SFMT.h"
-
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 
 struct PredResult{
     double topk_avg_relative_err;
@@ -107,11 +102,7 @@ vector<int> hub_sample_number;
 iMap<int> hub_counter;
 
 
-<<<<<<< HEAD
 double qtau1,qtau2,qtau3,utau1,utau2,maxqtau1,maxqtau2,maxqtau3,maxutau1,maxutau2;
-=======
-double qtau1,qtau2,qtau3,utau1,utau2;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 vector<double> query_costs;
 vector<double> update_costs;
 vector<double> qtau1_vector;
@@ -119,13 +110,9 @@ vector<double> qtau2_vector;
 vector<double> qtau3_vector;
 vector<double> utau1_vector;
 vector<double> utau2_vector;
-<<<<<<< HEAD
 double alist[5];
 double blist[5];
 double tau[5];
-=======
-
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 vector<double> final_throughput;
 vector<double> final_response_time;
 vector<double> final_beta1;
@@ -135,14 +122,11 @@ vector<double> final_throughput_ori;
 vector<double> final_response_time_ori;
 vector<double> final_beta1_ori;
 vector<double> final_beta2_ori;
-<<<<<<< HEAD
 vector<double> a_query1,w_query1;
 vector<double> a_query2,w_query2;
 vector<double> a_query3,w_query3;
 vector<double> a_update1,w_update1;
 vector<double> a_update2,w_update2;
-=======
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 bool ori_finished = false;
 bool im_finished = false;
 int crowd_flag;
@@ -639,10 +623,7 @@ static void set_result(const Graph& graph, int used_counter, int query_size){
 
     result.m = graph.m;
     result.n = graph.n;
-<<<<<<< HEAD
     INFO(query_size);
-=======
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
     result.avg_query_time = Timer::used(used_counter)/query_size;
 
     result.total_mem_usage = get_proc_memory()/1000.0;
@@ -1288,17 +1269,11 @@ void forward_local_update_linear(int s, const Graph &graph, double& rsum, double
 	if(config.with_baton == true){
         
         myeps = config.beta/(config.omega*config.alpha);
-<<<<<<< HEAD
         if(config.show_each<10){
             INFO(myeps);
         }
     }
 	
-=======
-        
-    }
-	// INFO(myeps);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
     vector<int> q;  //nodes that can still propagate forward
     q.reserve(graph.n);
     q.push_back(-1);

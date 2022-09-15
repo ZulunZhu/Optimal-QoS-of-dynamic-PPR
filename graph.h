@@ -68,22 +68,14 @@ public:
         g = vector<vector<int>>(n, vector<int>());
         gr = vector<vector<int>>(n, vector<int>());
         string graph_file = data_folder + FILESEP + "graph.txt";
-<<<<<<< HEAD
         assert_file_exist("ab_values", graph_file);
-=======
-        assert_file_exist("graph file", graph_file);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
         FILE *fin = fopen(graph_file.c_str(), "r");
         int t1, t2;
         while (fscanf(fin, "%d%d", &t1, &t2) != EOF) {
             assert(t1 < n);
             assert(t2 < n);
-<<<<<<< HEAD
             if(t1 == t2) continue;
                      
-=======
-            if(t1 == t2) continue;          
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
             g[t1].push_back(t2);
             gr[t2].push_back(t1);
                       

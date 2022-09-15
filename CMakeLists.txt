@@ -9,11 +9,7 @@ SET(CMAKE_CXX_FLAGS "-std=c++11 -O3 -DNDEBUG -w -pthread -lboost_serialization -
 
 find_package(Boost REQUIRED  unit_test_framework filesystem system date_time program_options)
 #find_package(Threads)
-<<<<<<< HEAD
-add_definitions("-Wall -g")
-=======
 
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 #set(HEADER algo.h build_oracle.h config.h graph.h head.h heap.h mylib.h query.h)
 #set(PPRLIB  mylib.cpp config.cpp)
 
@@ -34,4 +30,3 @@ add_executable(agenda ${PROJECT_SOURCE_DIR}/agenda.cpp ${PROJECT_SOURCE_DIR}/myl
 #add_executable(HubPPR hubppr.cpp ${PPRLIB} ${HEADER})
 
 target_link_libraries(agenda pthread boost_serialization boost_filesystem boost_system ${ARMADILLO_LIBRARIES})
- 

@@ -367,11 +367,7 @@ void multi_build(const Graph& graph){
     INFO(NUM_CORES);
 
     unsigned long long rw_max_size = graph.m*config.rmax*config.omega;
-<<<<<<< HEAD
     // INFO(rw_max_size, rw_idx.max_size());
-=======
-    INFO(rw_max_size, rw_idx.max_size());
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 
     rw_idx.reserve(rw_max_size);
 
@@ -444,11 +440,7 @@ void build(const Graph& graph){
     unsigned long long rw_max_size = graph.m*config.rmax*config.omega;
 	if(config.with_baton == true)
 		rw_max_size = graph.m*config.beta/config.alpha;
-<<<<<<< HEAD
     // INFO(rw_max_size, rw_idx.max_size());
-=======
-    INFO(rw_max_size, rw_idx.max_size());
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 
     rw_idx.reserve(rw_max_size);
 
@@ -619,11 +611,7 @@ void rebuild_idx(const Graph& graph){
 		rw_max_size = graph.m*config.beta/config.alpha;
     else if(config.opt == true)
         rw_max_size = rw_max_size*(1-config.alpha);
-<<<<<<< HEAD
     // INFO(rw_max_size, rw_idx.max_size());
-=======
-    INFO(rw_max_size, rw_idx.max_size());
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	
     rw_idx.reserve(rw_max_size);
 
@@ -650,12 +638,7 @@ void rebuild_idx(const Graph& graph){
 	//INFO(rw_idx.size(), rw_idx_info.size());
 }
 
-<<<<<<< HEAD
-void 
-rebuild_idx_vldb2010(const Graph& graph, int update_edge_start, int update_edge_end, bool is_insert){
-=======
 void rebuild_idx_vldb2010(const Graph& graph, int update_edge_start, int update_edge_end, bool is_insert){
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	if(is_insert == true){
         //edge update is insert
         for(int i = 0; i < rw_idx_alter.size(); i++){
@@ -736,11 +719,7 @@ void rebuild_idx_all(const Graph& graph){
 void update_idx(const Graph& graph, int source){
 	unsigned long num_rw = rw_idx_info[source].second;
 	//if(config.with_baton == true)
-<<<<<<< HEAD
 	num_rw = ceil(graph.g[source].size()*config.beta/config.alpha);
-=======
-		//num_rw = ceil(graph.g[source].size()*config.beta/config.alpha);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	unsigned long begin_idx = rw_idx_info[source].first;
     // INFO(num_rw);
 	for(unsigned long i=0; i<num_rw; i++){ //for each node, do some rand-walks

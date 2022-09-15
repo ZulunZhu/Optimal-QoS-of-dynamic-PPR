@@ -380,7 +380,6 @@ int main(int argc, char *argv[]) {
         }
         
     }
-<<<<<<< HEAD
     else if(config.action == TEST_LINEAR){
        // Initialize the graph
        for(int i = 0; i < config.runs; i++){
@@ -473,33 +472,6 @@ int main(int argc, char *argv[]) {
                 if(config.with_rw_idx&&!config.exact)
                     deserialize_idx();
                 cout<<"deserialize completed"<<endl;
-=======
-	else if(config.action == DYNAMIC_SS){  //*************************Used****************** 
-		config.graph_location = config.get_graph_folder();
-        Graph graph(config.graph_location);
-        INFO("load graph finish");
-        init_parameter(config, graph);
-		
-		std::string prefix = "result/"+config.graph_alias;
-		INFO(access(prefix.c_str(), NULL));
-		if (access(prefix.c_str(), NULL) == -1)
-			mkdir(prefix.c_str(),0777);	
-   
-        INFO("finished initing parameters");
-        INFO(graph.n, graph.m);
-		config.nodes = graph.n;
-        config.edges = graph.m;
-		if(config.with_rw_idx&&!config.exact)
-            deserialize_idx();
-		
-        cout<<"deserialize completed"<<endl;
-		
-		// generate_dynamic_workload();
-        if(config.test_throughput == true){
-            for(int i = 0; i < config.runs; i++){
-                crowd_flag = 0;
-                
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
                 
                 
                 int l_ori = 10, r_ori = 40; // 
@@ -598,7 +570,6 @@ int main(int argc, char *argv[]) {
             cout << "Memory usage (MB):" << get_proc_memory()/1000.0 << endl << endl;
 
         }else{
-<<<<<<< HEAD
             // response time
             for(int i = 0; i < config.runs; i++){
                
@@ -623,18 +594,11 @@ int main(int argc, char *argv[]) {
                 // start the orinial and optimization
                 
                  // workload
-=======
-            for(int i = 0; i < config.runs; i++){
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
                 crowd_flag = 0;
                 vector<Query> list_query = generate_query_workload_with_timestamp(config.lambda_q, config.simulation_time, DQUERY,graph);
                 
                 vector<Query> list_update = generate_query_workload_with_timestamp(config.lambda_u, config.simulation_time, DUPDATE,graph);
                 merge_dynamic_workload(list_query, list_update);
-<<<<<<< HEAD
-=======
-
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
                 // cout << "listqqqq:" << list_query[1000].init_time<< "listuuu"<< list_update.size()<<endl;
                 
 
@@ -644,7 +608,6 @@ int main(int argc, char *argv[]) {
                 }
                 vector<pair<int,int>> updates;
                 regenerate_updates(graph, updates,list_update);
-<<<<<<< HEAD
 
                 clock_t begin = clock(); 
                
@@ -672,22 +635,12 @@ int main(int argc, char *argv[]) {
 
                     dynamic_ssquery_with_op(graph1, list_query, list_update,updates);
                 }
-=======
-                dynamic_ssquery_origin(graph, list_query, list_update,updates);
-                Graph graph(config.graph_location);
-                INFO("load graph finish");
-                dynamic_ssquery_with_op(graph, list_query, list_update,updates);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 
             }
             string filename = config.graph_location + "result.txt";
             ofstream queryfile(filename, ios::app);
-<<<<<<< HEAD
             string filename_sum = config.graph_location + "result_sum.txt";
             ofstream queryfile_sum(filename_sum, ios::app);
-=======
-            
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
             queryfile<<" OA result when r_scale = " <<config.beta2<<"  f_scale = "<<config.beta1<<" time_window =  "<< config.simulation_time<<"   lambda_q = "<<config.lambda_q
             << " lambda_u = "<<config.lambda_u<<" for "<< config.runs<<" runs is throughput: "<<get_me_var(final_throughput_ori).first<<
             " response time: "<<get_me_var(final_response_time_ori).first*1000<<" ms"<<endl;
@@ -697,7 +650,6 @@ int main(int argc, char *argv[]) {
             " response time: "<<get_me_var(final_response_time).first*1000<<" ms"<<endl;
 
             }
-<<<<<<< HEAD
             if(config.algo == LAZYUP){
                 queryfile_sum<<"Algorithm: "<< config.algo<<config.with_rw_idx<< " time window: "<< config.simulation_time <<" Query size: "<<temp_query<<
                 " Original Response time: "<<get_me_var(final_response_time_ori).first<<" s"<<endl;
@@ -713,11 +665,6 @@ int main(int argc, char *argv[]) {
             queryfile<<"---------------------------------------------------------------"<<endl;
             queryfile.close();
             queryfile_sum.close();
-=======
-            queryfile<< " Optimized beta: "<<get_me_var(final_beta1_ori).first<<"  "<<get_me_var(final_beta2_ori).first<<endl;
-            queryfile<<"---------------------------------------------------------------"<<endl;
-            queryfile.close();
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
             cout << "Memory usage (MB):" << get_proc_memory()/1000.0 << endl << endl; 
             }
     }

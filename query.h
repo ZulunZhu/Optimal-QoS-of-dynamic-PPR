@@ -7,12 +7,8 @@
 #include "heap.h"
 #include "config.h"
 #include "build.h"
-<<<<<<< HEAD
 #include "constrain_ratio.h"
 #include <algorithm>
-=======
-#include "constrain.h"
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 #include<numeric>
 
 //#define CHECK_PPR_VALUES 1
@@ -1417,18 +1413,9 @@ void fora_query_lazy_dynamic(int v, const Graph& graph, double theta){
     double temp_omg=config.omega;
     config.epsilon=config.epsilon*theta;
     config.omega = (2+config.epsilon)*log(2/config.pfail)/config.delta/config.epsilon/config.epsilon;
-<<<<<<< HEAD
     
 
 
-=======
-    if(with_op==true){
-        
-        config.omega = config.omega/config.beta1;
-        // config.omega = config.omega;
-        
-    }
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	std::chrono::steady_clock::time_point startTime;
     startTime = std::chrono::steady_clock::now();
     {
@@ -1450,13 +1437,9 @@ void fora_query_lazy_dynamic(int v, const Graph& graph, double theta){
 	auto duration_query2 = get_duration(startTime);
     qtau2_vector.push_back(duration_query2-duration_query1);
     // qtau2 = max(duration_query2-duration_query1, qtau2);
-<<<<<<< HEAD
     if(config.show_each<10){
         INFO(duration_query2-duration_query1);
     }
-=======
-    // INFO(duration_query2-duration_query1);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	Timer timer(FORA_QUERY);
     // compute_ppr_with_fwdidx(graph);
 	
@@ -2433,11 +2416,7 @@ float nextTime(double rateParameter) {
     return -log(1.0f - (double) rand() / (RAND_MAX + 1.0)) / rateParameter;
 }
 
-<<<<<<< HEAD
 vector<double> poisson(double lambda, double T) {// T: seconds
-=======
-vector<double> poisson(double lambda, int T) {// T: seconds
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
     vector<double> sequence;
     double t=0;
 //    srand(time(NULL));
@@ -2453,19 +2432,12 @@ vector<double> poisson(double lambda, int T) {// T: seconds
     }
     return sequence;
 }
-<<<<<<< HEAD
 vector<Query> generate_query_workload_with_timestamp(double lambda, double T, int type, Graph& graph){
     vector<Query> list;
     INFO(lambda);
     INFO(T);
     vector<double> sequence = poisson(lambda, T);
     INFO(sequence.size());
-=======
-vector<Query> generate_query_workload_with_timestamp(double lambda, int T, int type, Graph& graph){
-    vector<Query> list;
-    vector<double> sequence = poisson(lambda, T);
-//    cout<<endl<<sequence.size()<<" "<<lambda*T<<endl;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
     seed +=1;
     srand(seed+type*10);
     int n = sequence.size();
@@ -2741,11 +2713,7 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         fwd_idx.second.initialize(graph.n);
 		
         for(int i=0; i<dynamic_workload.size(); i++){
-<<<<<<< HEAD
             if(i%1==0){
-=======
-            if(i%1000==0){
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
                 cout<<"----------------------------------"<<endl;
 			    cout<<"operation "<<i<<endl;
             }
@@ -2758,11 +2726,8 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
 				}
 			}
             */
-<<<<<<< HEAD
             std::chrono::steady_clock::time_point startTime;
             startTime = std::chrono::steady_clock::now();
-=======
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
             if(dynamic_workload[i]==DUPDATE){
 				int u,v;
 				u=updates[update_count].first;
@@ -2779,7 +2744,6 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
                     }
                     
 				}
-<<<<<<< HEAD
                 auto duration_update = get_duration(startTime);
                 update_costs.push_back(duration_update);
                 INFO(duration_update);
@@ -2789,10 +2753,6 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
                 
                 query_costs.push_back(duration_query);
                 INFO(duration_query);
-=======
-			}else if(dynamic_workload[i]==DQUERY){
-				fora_query_basic(queries[query_count++], graph);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 			}
         }
 		Timer::show();
@@ -2808,15 +2768,11 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
 			fora_query_basic(queries[query_count++], graph);
 			output_imap(ppr, result_file, test_k);
 		}
-<<<<<<< HEAD
 		
         assign_cost(list_query, list_update, query_costs, update_costs);
         auto result = simulator_FIFO(list_query, list_update);
         final_throughput_ori.push_back(result.first);
         final_response_time_ori.push_back(result.second);
-=======
-		cout<<endl;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	}
 	else if(config.algo == BATON){ //fora
         fora_setting(graph.n, graph.m);
@@ -2860,11 +2816,7 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
 		ofstream result_file;
 		if(config.check_size>0){
 			if(config.with_rw_idx){
-<<<<<<< HEAD
 				// Timer timer(REBUILD_INDEX);
-=======
-				Timer timer(REBUILD_INDEX);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 				rebuild_idx(graph);
 			}
 			if(config.exact)
@@ -3006,11 +2958,7 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         //----some bugs maybe, here is the parameters setting
         double errorlimit=1.0/graph.n;
         double epsrate=1;
-<<<<<<< HEAD
         config.rbmax = config.test_beta1*errorlimit*epsrate;
-=======
-        config.rbmax = errorlimit*epsrate;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
         
         
         display_setting();
@@ -3107,7 +3055,6 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         qtau3 = get_me_var(qtau3_vector).first;
         utau1 = get_me_var(utau1_vector).first;
         utau2 = get_me_var(utau2_vector).first;
-<<<<<<< HEAD
         maxqtau1 = *max_element(qtau1_vector.begin(), qtau1_vector.end());
         maxqtau2 = *max_element(qtau2_vector.begin(), qtau2_vector.end());
         maxqtau3 = *max_element(qtau3_vector.begin(), qtau3_vector.end());
@@ -3121,11 +3068,6 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         cout<<"********************************************************************"<<endl;
         
         
-=======
-
-        cout<<"********************************************************************"<<endl;
-        // cout<<qtau1<<"  "<<qtau2<<"  "<<qtau3<<"  "<<utau1<<"  "<<utau2<<"  "<<endl;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
         cout<<"Query size: "<< list_query.size()<<endl;
         cout<<"Query mean: "<< config.mv_query.first<<"variance: "<<config.mv_query.second<<endl;
 
@@ -3155,14 +3097,9 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         // output the log file
         string filename = config.graph_location + "result.txt";
         ofstream queryfile(filename, ios::app);
-<<<<<<< HEAD
         queryfile<<"***average: "<<qtau1<<"  "<<qtau2<<"  "<<qtau3<<"  "<<utau1<<"  "<<utau2<<"  "<<endl;
         queryfile<<"maximum: "<<maxqtau1<<"  "<<maxqtau2<<"  "<<maxqtau3<<"  "<<maxutau1<<"  "<<maxutau2<<"  "<<endl;
         queryfile<<" OA t_q: "<< config.mv_query.first<<"t_u: "<<
-=======
-        
-        queryfile<<"***" <<" OA t_q: "<< config.mv_query.first<<"t_u: "<<
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
          config.mv_update.first<<" Throughput "<< 
          result.first<<" Average response time "<< result.second<< "  Crowded = "<< t_sum <<endl;
         queryfile<< " Optimized beta = "<< opt_result.first<< "  "<< opt_result.second<<endl;
@@ -3170,11 +3107,7 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         queryfile.close();
         config.beta1 = opt_result.first;
         config.beta2 = opt_result.second;
-<<<<<<< HEAD
         
-=======
-        with_op = true;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 		if(config.check_size>0){
 			// Timer::show();
 			ofstream result_file;
@@ -3204,18 +3137,14 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
             cout<<"----------------------------------"<<endl;
 			cout<<"operation "<<i<<endl;
 			Timer timer(0);
-<<<<<<< HEAD
             std::chrono::steady_clock::time_point startTime;
             startTime = std::chrono::steady_clock::now();
-=======
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
             if(dynamic_workload[i]==DUPDATE){
 				int u,v;
 				u=updates[update_count].first;
 				v=updates[update_count].second;
 				update_count++;
 				update_graph(graph, u, v);
-<<<<<<< HEAD
                 auto duration_update = get_duration(startTime);
                 update_costs.push_back(duration_update);
                 INFO(duration_update);
@@ -3225,10 +3154,6 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
                 
                 query_costs.push_back(duration_query);
                 INFO(duration_query);
-=======
-			}else if(dynamic_workload[i]==DQUERY){
-				resacc_query(queries[query_count++], graph);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 			}
         }
 		Timer::show();
@@ -3244,7 +3169,6 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
 			resacc_query(queries[query_count++], graph);
 			output_imap(ppr, result_file, test_k);
 		}
-<<<<<<< HEAD
 		
         assign_cost(list_query, list_update, query_costs, update_costs);
         auto result = simulator_FIFO(list_query, list_update);
@@ -3252,11 +3176,6 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         final_response_time_ori.push_back(result.second);
 	}
 	// set_result(graph, used_counter, query_size);
-=======
-		cout<<endl;
-	}
-	set_result(graph, used_counter, query_size);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
     // if(config.algo == LAZYUP){
     //     ASSERT(query_costs.size()==list_query.size()&&update_costs.size()==list_update.size());
     //     assign_cost(list_query, list_update, query_costs, update_costs);
@@ -3311,11 +3230,7 @@ void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Quer
     utau2_vector.clear();
 
     cout<<"After optimization~~~"<<endl;
-<<<<<<< HEAD
     with_op = true;
-=======
-  
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 
     
 
@@ -3575,12 +3490,8 @@ void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Quer
         double epsrate=1;
         
         config.rbmax = config.beta2*errorlimit*epsrate;
-<<<<<<< HEAD
         // config.rbmax = errorlimit*epsrate;
         config.beta = config.beta1*config.beta;
-=======
-        // config.rbmax = 0.2*errorlimit*epsrate;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
         
         Timer timer(0);
         display_setting();
@@ -3676,11 +3587,7 @@ void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Quer
         utau2 = get_me_var(utau2_vector).first;
 
         cout<<"********************************************************************"<<endl;
-<<<<<<< HEAD
         cout<<qtau1<<"  "<<qtau2<<"  "<<qtau3<<"  "<<utau1<<"  "<<utau2<<"  "<<endl;
-=======
-
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
         cout<<"Query size: "<< list_query.size()<<endl;
         cout<<"Query mean: "<< config.mv_query.first<<"variance: "<<config.mv_query.second<<endl;
 
@@ -3709,11 +3616,7 @@ void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Quer
         // output the log file
         string filename = config.graph_location + "result.txt";
         ofstream queryfile(filename, ios::app);
-<<<<<<< HEAD
         queryfile<<"******tau: "<<qtau1<<"  "<<qtau2<<"  "<<qtau3<<"  "<<utau1<<"  "<<utau2<<"  "<<endl;
-=======
-        
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
         queryfile<<"IA t_q: "<< config.mv_query.first<<"t_u: "<<
          config.mv_update.first<<" Throughput "<< 
          result.first<<" Average response time "<< result.second<< "  Crowded = "<< t_sum <<"\n"<<
@@ -3784,11 +3687,7 @@ void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Quer
 		}
 		cout<<endl;
 	}
-<<<<<<< HEAD
 	// set_result(graph, used_counter, query_size);
-=======
-	set_result(graph, used_counter, query_size);
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	cout<<"trw:"<<num_total_rw<<endl;
 	cout<<"hrw:"<<num_hit_idx<<endl;
 }

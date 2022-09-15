@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-
-=======
-# For temporary test of optimal QoS measurements
-```sh
-$ ./agenda dynamic-ss --algo lazyup --lambdaq 30 --lambdau 200 --runs 5 --prefix ./data/ --dataset webstanford --with_idx
-```
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 ## Tested Environment
 - Ubuntu 16
 - C++ 11
@@ -13,7 +5,6 @@ $ ./agenda dynamic-ss --algo lazyup --lambdaq 30 --lambdau 200 --runs 5 --prefix
 - Boost
 - cmake
 
-<<<<<<< HEAD
 ## Install the library 
 ```sh
 $ git clone https://github.com/mlpack/ensmallen.git
@@ -24,22 +15,17 @@ $ cmake ..
 $ sudo make install
 ```
 
-=======
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 ## Compile
 ```sh
 $ cmake .
 $ make
 ```
 
-<<<<<<< HEAD
 # For temporary test of optimal response time measurements
 ```sh
 $ bash run_webs.sh
 ```
 
-=======
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 ## Parameters
 ```sh
 ./agenda action_name --algo <algorithm> [options]

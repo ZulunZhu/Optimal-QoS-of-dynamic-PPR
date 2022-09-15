@@ -32,10 +32,7 @@ const string QUERY = "query";
 const string GEN_SS_QUERY = "generate-ss-query";
 const string TOPK = "topk";
 const string BUILD = "build";
-<<<<<<< HEAD
 const string TEST_LINEAR = "test_linear";
-=======
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 const string GEN_EXACT_TOPK = "gen-exact-topk";
 //const string ASSVERSION = "version";
 const string BATCH_TOPK = "batch-topk";
@@ -122,13 +119,8 @@ public:
         return prefix + graph_alias + FILESEP;
     }
     bool multithread = false;
-<<<<<<< HEAD
     bool with_rw_idx = false;
 	bool with_baton = false;
-=======
-    bool with_rw_idx = true;
-	bool with_baton = true;
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
 	bool exact = false;
 	bool reuse = false;
 	bool power_iteration=false;
@@ -149,12 +141,8 @@ public:
     double lambda_q = 30; //ratio of query
     double lambda_u = 200; //ratio of update
     double simulation_time = 10.0; //simulation time
-<<<<<<< HEAD
     int runs = 1;//multiple runs
     double test_beta1 = 1.0;
-=======
-    int runs = 5;//multiple runs
->>>>>>> 026c13be6da490260457e6d9cb2eaa014f5c0345
     double beta1 = 1.0, beta2 = 1; //the optimization parameters
     bool test_throughput = false; //true when test the throuput, otherwise test the response time
     double response_t = 0.5;
