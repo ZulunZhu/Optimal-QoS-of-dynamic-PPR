@@ -1,0 +1,8 @@
+
+
+Algorithm: layzyup0 time window: 103.6 Query size: 2 Original Response time: -nan s time cost: 0.009845
+Algorithm: layzyup0 time window: 103.6 Query size: 2 Original Response time: -nan s time cost: 0.009502
+Algorithm: lazyup1 time window: 0.4 Query size: 2 Original Response time: -nan s
+ Optimal response time: -nan s time cost: 0.191148
+Algorithm: lazyup1 time window: 4 Query size: 2 Original Response time: 0.00852098 s
+ Optimal response time: 0.00744016 s time cost: 0.182555

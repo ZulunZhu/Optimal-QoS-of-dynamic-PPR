@@ -1,0 +1,48 @@
+{
+    "start_time": "2022-05-23 12:23:45",
+    "end_time": "2022-05-23 12:23:48",
+    "command_line": " query --algo genda --prefix .\/data\/ --dataset webstanford --epsilon 0.5 --query_size 200 --with_idx",
+    "config": {
+        "graph_alias": "webstanford",
+        "action": "query",
+        "alpha": "0.20000000000000001",
+        "pfail": "3.5473068846132018e-06",
+        "epsilon": "0.5",
+        "delta": "3.5473068846132018e-06",
+        "idx": "true",
+        "k": "500",
+        "rand-walk & push cost ratio": "8",
+        "query-size": "200",
+        "algo": "genda",
+        "rmax": "9.8250254864295589e-08",
+        "rmax-scale": "1",
+        "omega": "37331049.942227691",
+        "result-dir": ".\/\/execution\/"
+    },
+    "result": {
+        "n": "281904",
+        "m": "2312497",
+        "avg query time(s\/q)": "0.0053376581250000003",
+        "total memory usage(MB)": "111.184",
+        "total time usage(s)": "1.067531625",
+        "total time on rand-walks(s)": "0.25297397599999999",
+        "total time on propagation(s)": "0",
+        "total time on sorting top-k ppr(s)": "0",
+        "total time ratio on rand-walks(%)": "23.697094313248098",
+        "total time ratio on propagation(%)": "0",
+        "total number of rand-walks": "36491318",
+        "total number of rand-walk idx used": "36491318",
+        "total usage ratio of rand-walk idx": "1",
+        "topk max absolute error": "-nan",
+        "topk avg absolute error": "-nan",
+        "topk max relative error": "-nan",
+        "topk avg relative error": "-nan",
+        "topk precision": "-nan",
+        "topk recall": "-nan"
+    },
+    "timer": {
+        "3": "1.067531625",
+        "5": "0.79668530299999996",
+        "6": "0.25297397599999999"
+    }
+}
