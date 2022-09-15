@@ -25,7 +25,7 @@ $ mkdir build
 $ cd build
 $ cmake ..
 $ sudo make install
-```sh
+```
 
 ## Compile
 ```sh
