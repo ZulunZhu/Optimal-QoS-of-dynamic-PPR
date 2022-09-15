@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
         }
     }
     if(config.graph_alias=="webstanford"){
-            config.show_each=1000;
+            config.show_each=20;
 
         }else{
             config.show_each=1;
@@ -436,15 +436,16 @@ int main(int argc, char *argv[]) {
     }
 	else if(config.action == DYNAMIC_SS){  //*************************Used****************** 
         // scale the size
-        config.query_size = config.query_size/10;
-        config.simulation_time = config.simulation_time/10;
+        int scale = 5;
+        config.query_size = config.query_size/scale;
+        config.simulation_time = config.simulation_time/scale;
 
 
 		config.lambda_q = config.query_size/config.simulation_time;
-        config.update_size = 40-config.query_size;
+        config.update_size = 400/scale-config.query_size;
         double temp_query = config.query_size;
         if(config.update_size == 0){
-            config.update_size=1;
+            config.update_size=3;
         }
         config.lambda_u = config.update_size/config.simulation_time;
         INFO(config.lambda_q);

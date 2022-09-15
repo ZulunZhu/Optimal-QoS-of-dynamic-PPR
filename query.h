@@ -2638,7 +2638,7 @@ pair<double, double> simulator_FIFO(vector<Query> &list_query, vector<Query> &li
     assert(config.simulation_time < 10000);
     vector<double> simulated_query_costs;
     vector<double> simulated_update_costs;
-    int total_time = config.simulation_time;
+    double total_time = config.simulation_time;
     int i=0, j=0;
     int count = 0; // the number of queries processed.
 
@@ -2646,7 +2646,7 @@ pair<double, double> simulator_FIFO(vector<Query> &list_query, vector<Query> &li
     Query* current_query;
 
     double c_time=0;  // current time for processing queries
-
+    
     while(c_time <= total_time) {
         current_query = getNext(list_query, list_update, i, j);
         if (current_query == NULL) {

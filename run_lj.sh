@@ -1,5 +1,10 @@
 ./agenda dynamic-ss --algo layzyup --epsilon 0.5 --prefix ../data/ --dataset livejournal --query_size 20 --timewin 1036 --with_idx
 
+for ((j=80; j<=400; j=j+80))
+do
+    echo $j
+./agenda dynamic-ss --algo layzyup --epsilon 0.5 --prefix ../data/ --dataset livejournal --query_size $j --timewin 1036 --with_idx
+done
 
 # ./agenda dynamic-ss --algo fora --epsilon 0.5 --prefix ../data/ --dataset livejournal --query_size 20 --timewin 27281 --with_idx
 
