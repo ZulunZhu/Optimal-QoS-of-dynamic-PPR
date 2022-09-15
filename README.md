@@ -6,6 +6,18 @@
 - cmake
 
 ## Install the library 
+### Install some essential library
+```sh
+$ sudo apt  install libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev libboost-all-dev
+```
+### Install armadillo
+```sh
+$ git clone https://gitlab.com/conradsnicta/armadillo-code.git
+$ cd armadillo-code/
+$ cmake .
+$ sudo make install
+```
+### Install ensmallen
 ```sh
 $ git clone https://github.com/mlpack/ensmallen.git
 $ cd ensmallen

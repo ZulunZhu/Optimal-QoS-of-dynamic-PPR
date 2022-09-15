@@ -1,0 +1,11 @@
+[0;32m--------------start------------2022-09-15 22:30:16[0m
+[0;32margs:dynamic-ss --algo lazyup --epsilon 0.5 --prefix ../data/ --dataset livejournal --query_size 20 --timewin 1036 --with_idx [0m
+action: dynamic-ss
+config.epsilon=0.5 
+config.simulation_time=1036 
+config.version=vector 
+config.action=dynamic-ss 
+config.lambda_q=0.019305 
+config.lambda_u=0.366795 
+config.simulation_time=207.2 
+sub constructor 
