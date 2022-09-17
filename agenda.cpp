@@ -501,7 +501,7 @@ int main(int argc, char *argv[]) {
                     }
                     vector<pair<int,int>> updates;
                     regenerate_updates(graph, updates,list_update);
-
+                    
                     dynamic_ssquery_origin(graph, list_query, list_update,updates);
                     if(ori_finished==false){
 
@@ -611,7 +611,7 @@ int main(int argc, char *argv[]) {
                 regenerate_updates(graph, updates,list_update);
 
                 clock_t begin = clock(); 
-               
+                INFO(config.alter_idx);
                 dynamic_ssquery_origin(graph, list_query, list_update,updates);
                 clock_t end = clock();
                 time_cost = double(end - begin) / CLOCKS_PER_SEC;
@@ -652,7 +652,7 @@ int main(int argc, char *argv[]) {
 
             }
             if(config.algo == LAZYUP){
-                queryfile_sum<<"Algorithm: "<< config.algo<<config.with_rw_idx<< " time window: "<< config.simulation_time <<" Query size: "<<temp_query<<
+                queryfile_sum<<"Algorithm: "<< config.algo<<config.alter_idx<< " time window: "<< config.simulation_time <<" Query size: "<<temp_query<<
                 " Original Response time: "<<get_me_var(final_response_time_ori).first<<" s"<<endl;
                 queryfile_sum<<" Optimal response time: "<<get_me_var(final_response_time).first<<" s"<<" time cost: "
                 <<time_cost<<endl;

@@ -183,7 +183,7 @@ class ConstrainedFunctionType
     
   // Get the number of constraints on the objective function.
   size_t NumConstraints(){
-    return 4;
+    return 3;
   };
   // double test(const arma::mat& x){
   //   return (1./6)*pow(x(0,0),2) + (1./6)*pow(x(0,1),2) - 1;
@@ -207,16 +207,7 @@ class ConstrainedFunctionType
         return 0;
         break;
       }
-
-      case 1: if (t_q-config.response_t>0){
-        return (t_q-config.response_t)*100;
-        break;
-      }
-      else{
-        return 0;
-        break;
-      }
-      case 2: if (-x(0,0)>0){
+      case 1: if (-x(0,0)>0){
         return (-x(0,0))*100;
         break;
       }
@@ -224,7 +215,7 @@ class ConstrainedFunctionType
         return 0;
         break;
       }
-      case 3: if (-x(0,1)>0){
+      case 2: if (-x(0,1)>0){
         return (-x(0,1))*100;
         break;
       }
@@ -232,6 +223,14 @@ class ConstrainedFunctionType
         return 0;
         break;
       }
+      // case 3: if (t_q-config.response_t>0){
+      //   return (t_q-config.response_t)*100;
+      //   break;
+      // }
+      // else{
+      //   return 0;
+      //   break;
+      // }
     }
     
   };
@@ -244,11 +243,11 @@ class ConstrainedFunctionType
     switch (i){
       case 0: g = {config.lambda_q*(a*x(0,1)+b-c/(x(0,0)*x(0,0))),config.lambda_q*a*x(0,0)-config.lambda_u*d/(x(0,1)*x(0,1))};
         break;
-      case 1: g = {a*x(0,1)+b-c/(x(0,0)*x(0,0)),a*x(0,0)};
+      // case 1: g = {a*x(0,1)+b-c/(x(0,0)*x(0,0)),a*x(0,0)};
+      //   break;
+      case 1: g = {-1,0};
         break;
-      case 2: g = {-1,0};
-        break;
-      case 3: g = {0,-1};
+      case 2: g = {0,-1};
         break;
     }
   };

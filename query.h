@@ -7,7 +7,7 @@
 #include "heap.h"
 #include "config.h"
 #include "build.h"
-#include "constrain_ratio.h"
+#include "constrain_linear.h"
 #include <algorithm>
 #include<numeric>
 
