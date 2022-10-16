@@ -54,6 +54,7 @@ const string HUBPPR = "hubppr";
 const string PARTUP = "partup";
 const string LAZYUP = "lazyup";
 const string RESACC = "resacc";
+const string SPEEDPPR = "speedppr";
 const string FORA_AND_BATON = "fora+baton";
 const string GENDA = "genda";
 
@@ -140,10 +141,12 @@ public:
 
     double lambda_q = 30; //ratio of query
     double lambda_u = 200; //ratio of update
+    double rate = 1.0; //ratio of query/update
     double simulation_time = 10.0; //simulation time
     int runs = 1;//multiple runs
+    int linear_runs = 5;
     double test_beta1 = 1.0;
-    double beta1 = 1.0, beta2 = 1; //the optimization parameters
+    double beta1 = 1.0, beta2 = 1.0; //the optimization parameters
     bool test_throughput = false; //true when test the throuput, otherwise test the response time
     double response_t = 0.5;
 

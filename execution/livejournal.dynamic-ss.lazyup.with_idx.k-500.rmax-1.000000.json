@@ -1,0 +1,52 @@
+{
+    "start_time": "2022-09-25 16:23:22",
+    "end_time": "2022-09-25 16:45:23",
+    "command_line": " dynamic-ss --algo lazyup --epsilon 0.5 --prefix ..\/data\/ --dataset livejournal --lambdaq 0.1 --rate 0.25 --timewin 1000 --with_idx",
+    "config": {
+        "graph_alias": "livejournal",
+        "action": "dynamic-ss",
+        "alpha": "0.20000000000000001",
+        "pfail": "2.0628888158626249e-07",
+        "epsilon": "0.5",
+        "delta": "2.0628888158626249e-07",
+        "idx": "true",
+        "k": "500",
+        "rand-walk & push cost ratio": "8",
+        "query-size": "200",
+        "algo": "lazyup",
+        "rmax": "3.9355277594817427e-09",
+        "rmax-scale": "1",
+        "omega": "779835314.90279043",
+        "result-dir": ".\/\/execution\/"
+    },
+    "result": {
+        "n": "0",
+        "m": "0",
+        "avg query time(s\/q)": "0",
+        "total memory usage(MB)": "0",
+        "total time usage(s)": "0",
+        "total time on rand-walks(s)": "0",
+        "total time on propagation(s)": "0",
+        "total time on sorting top-k ppr(s)": "0",
+        "total time ratio on rand-walks(%)": "0",
+        "total time ratio on propagation(%)": "0",
+        "total number of rand-walks": "0",
+        "total number of rand-walk idx used": "0",
+        "total usage ratio of rand-walk idx": "0",
+        "topk max absolute error": "-nan",
+        "topk avg absolute error": "-nan",
+        "topk max relative error": "-nan",
+        "topk avg relative error": "-nan",
+        "topk precision": "-nan",
+        "topk recall": "-nan"
+    },
+    "timer": {
+        "0": "1278.611352848",
+        "3": "478.30587825100002",
+        "5": "322.60932579199999",
+        "6": "152.240978974",
+        "11": "2.0523999999999999e-05",
+        "12": "0.00631491",
+        "13": "600.62199085600002"
+    }
+}

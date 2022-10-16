@@ -1,40 +1,35 @@
-# ./agenda dynamic-ss --algo lazyup --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 20 --timewin  48 --with_idx
 
-# for ((j=80; j<=320; j=j+80))
-# do
-#     echo $j
-# ./agenda dynamic-ss --algo lazyup --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size $j --timewin  48 --with_idx
-# done
+# ./agenda build --prefix ./data/ --dataset dblp --epsilon 0.5 --beta 1 --alter_idx
+# ./agenda build --prefix ./data/ --dataset dblp --epsilon 0.5 --beta 5 --baton
+# ./agenda build --prefix ./data/ --dataset dblp --epsilon 0.5 --beta 1
 
-# ./agenda dynamic-ss --algo lazyup --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 380 --timewin  48 --with_idx
+cmake .
 
-./agenda dynamic-ss --algo fora --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 20 --timewin 946 --with_idx
+make
 
-for ((j=80; j<=320; j=j+80))
+rate=(0.125 0.25 0.5 1 2 4 8)
+## Agenda
+for rt in "${rate[@]}"
 do
-    echo $j
-./agenda dynamic-ss --algo fora --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size $j --timewin 946 --with_idx
+    ./agenda dynamic-ss --algo lazyup --epsilon 0.5 --prefix ../data/ --dataset dblp --lambdaq 10 --rate ${rt} --timewin 10 --with_idx
 done
 
-./agenda dynamic-ss --algo fora --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 380 --timewin 946 --with_idx
-
-
-
-./agenda dynamic-ss --algo resacc --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 20 --timewin 254 
-for ((j=80; j<=320; j=j+80))
+### Fora
+for rt in "${rate[@]}"
 do
-    echo $j
-./agenda dynamic-ss --algo resacc --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size $j --timewin 254 
+    ./agenda dynamic-ss --algo fora --epsilon 0.5 --prefix ../data/ --dataset dblp --lambdaq 10 --rate ${rt} --timewin 10
 done
 
-./agenda dynamic-ss --algo resacc --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 380 --timewin 254
+## Fora+
 
-
-
-./agenda dynamic-ss --algo fora --alter_idx --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 20 --timewin 101 --with_idx
-for ((j=80; j<=320; j=j+80))
+for rt in "${rate[@]}"
 do
-    echo $j
-./agenda dynamic-ss --algo fora --alter_idx --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size $j --timewin 101 --with_idx
+    ./agenda dynamic-ss --algo fora --epsilon 0.5 --prefix ../data/ --dataset dblp --lambdaq 10 --rate ${rt} --timewin 10 --with_idx
 done
-./agenda dynamic-ss --algo fora --alter_idx --epsilon 0.5 --prefix ../data/ --dataset dblp --query_size 380 --timewin 101 --with_idx
+
+### Resacc
+
+for rt in "${rate[@]}"
+do
+    ./agenda dynamic-ss --algo resacc --epsilon 0.5 --prefix ../data/ --dataset dblp --lambdaq 10 --rate ${rt} --timewin 10
+done

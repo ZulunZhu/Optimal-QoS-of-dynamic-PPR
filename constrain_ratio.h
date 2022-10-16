@@ -43,26 +43,29 @@ class ConstrainedFunctionType
   double a,b,c,d;
   bool plot = false;
   void calculate_para(arma::mat x){
+    if(config.algo == LAZYUP){  
+      double tau0 = qtau1*x(0,0)/config.omega;
+      double epsilon = config.epsilon/config.theta;
+      double tau1 = qtau2*(1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega/
+      (x(0,0)*config.edges*(x(0,1)*config.nodes*config.rbmax+1));
+      double tau2 = qtau3*config.alpha*config.nodes/(x(0,0)*config.edges);
+      double tau3 = utau1*x(0,1)*config.nodes*config.alpha*config.rbmax/config.edges;
 
-    double tau0 = qtau1*x(0,0)/config.omega;
-    double epsilon = config.epsilon/config.theta;
-    double tau1 = qtau2*(1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega/
-    (x(0,0)*config.edges*(x(0,1)*config.nodes*config.rbmax+1));
-    double tau2 = qtau3*config.alpha*config.nodes/(x(0,0)*config.edges);
-    double tau3 = utau1*x(0,1)*config.nodes*config.alpha*config.rbmax/config.edges;
+      a = config.edges*(config.nodes*config.rbmax*tau1)/
+      ((1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega);
 
-    a = config.edges*(config.nodes*config.rbmax*tau1)/
-    ((1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega);
-
-   
-
-    b = config.edges*tau1/((1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega)+
-    config.edges*tau2/(config.alpha*config.nodes);
-
-    c = config.omega*tau0;
-  
-    d = config.edges*tau3/(config.nodes*config.alpha*config.rbmax);
     
+
+      b = config.edges*tau1/((1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega)+
+      config.edges*tau2/(config.alpha*config.nodes);
+
+      c = config.omega*tau0;
+    
+      d = config.edges*tau3/(config.nodes*config.alpha*config.rbmax);
+    }else if(config.algo == FORA){
+      
+
+    }
     // std::cout << "tau0 is " <<a<<" "<< b<<" "<<c<<" "<<d<<" "<<
     // " "<<endl;
   }

@@ -25,7 +25,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-
 #include <chrono>
 
 
@@ -125,6 +124,9 @@ int main(int argc, char *argv[]) {
         }else if (arg == "--lambdaq") {
         config.lambda_q = atof(argv[i + 1]);
         INFO(config.lambda_q);
+        }else if (arg == "--rate") {
+        config.rate = atof(argv[i + 1]);
+        INFO(config.rate);
         }else if (arg == "--lambdau") {
         config.lambda_u = atof(argv[i + 1]);
         INFO(config.lambda_u);
@@ -382,7 +384,7 @@ int main(int argc, char *argv[]) {
     }
     else if(config.action == TEST_LINEAR){
        // Initialize the graph
-       for(int i = 0; i < config.runs; i++){
+       for(int i = 0; i < config.linear_runs; i++){
             config.test_beta1 = config.test_beta1+0.2;
             config.beta = config.beta+0.2;
             config.graph_location = config.get_graph_folder();
@@ -437,17 +439,20 @@ int main(int argc, char *argv[]) {
 	else if(config.action == DYNAMIC_SS){  //*************************Used****************** 
         // scale the size
         int scale = 5;
-        config.query_size = config.query_size/scale;
-        config.simulation_time = config.simulation_time/scale;
+        // config.query_size = config.query_size/scale;
+        // config.simulation_time = config.simulation_time/scale;
 
 
-		config.lambda_q = config.query_size/config.simulation_time;
-        config.update_size = 400/scale-config.query_size;
-        double temp_query = config.query_size;
-        if(config.update_size == 0){
-            config.update_size=3;
-        }
-        config.lambda_u = config.update_size/config.simulation_time;
+		// config.lambda_q = config.query_size/config.simulation_time;
+        // config.update_size = 400/scale-config.query_size;
+
+
+        // double temp_query = config.query_size;
+        // if(config.update_size == 0){
+        //     config.update_size=3;
+        // }
+        // config.lambda_u = config.update_size/config.simulation_time;
+        config.lambda_u = config.lambda_q*config.rate;
         INFO(config.lambda_q);
         INFO(config.lambda_u);
         INFO(config.simulation_time);
@@ -652,14 +657,14 @@ int main(int argc, char *argv[]) {
 
             }
             if(config.algo == LAZYUP){
-                queryfile_sum<<"Algorithm: "<< config.algo<<config.alter_idx<< " time window: "<< config.simulation_time <<" Query size: "<<temp_query<<
-                " Original Response time: "<<get_me_var(final_response_time_ori).first<<" s"<<endl;
+                queryfile_sum<<"Algorithm: "<< config.algo<<config.alter_idx<< " time window: "<< config.simulation_time <<" Query rate: "<<config.lambda_q<<
+                " update rate: "<<config.lambda_u<<" Original Response time: "<<get_me_var(final_response_time_ori).first<<" s"<<endl;
                 queryfile_sum<<" Optimal response time: "<<get_me_var(final_response_time).first<<" s"<<" time cost: "
                 <<time_cost<<endl;
                 
             }else{
-                queryfile_sum<<"Algorithm: "<< config.algo<<config.alter_idx<<" time window: "<< config.simulation_time <<" Query size: "<<temp_query<< 
-                " Original Response time: "<<get_me_var(final_response_time_ori).first<<" s"<< " time cost: "
+                queryfile_sum<<"Algorithm: "<< config.algo<<config.alter_idx<<" time window: "<< config.simulation_time <<" Query size: "<<config.lambda_q<< 
+                " update rate: "<<config.lambda_u<<" Original Response time: "<<get_me_var(final_response_time_ori).first<<" s"<< " time cost: "
                 <<time_cost<<endl;
             }
             queryfile<< " Optimized beta: "<<get_me_var(final_beta1_ori).first<<"  "<<get_me_var(final_beta2_ori).first<<endl;

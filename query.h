@@ -7,7 +7,7 @@
 #include "heap.h"
 #include "config.h"
 #include "build.h"
-#include "constrain_linear.h"
+#include "constrain_ratio.h"
 #include <algorithm>
 #include<numeric>
 
@@ -1328,6 +1328,8 @@ double estimated_random_walk_cost(double rsum, double rmax){
 
 void fora_query_basic(int v, const Graph& graph){
     Timer timer(FORA_QUERY);
+    std::chrono::steady_clock::time_point startTime;
+    startTime = std::chrono::steady_clock::now();
 	//INFO(v);
     double rsum = 1.0;
     if(config.balanced){
@@ -1371,6 +1373,8 @@ void fora_query_basic(int v, const Graph& graph){
         forward_local_update_linear(v, graph, rsum, config.rmax); //forward propagation, obtain reserve and residual
     }
 
+    auto duration_query1 = get_duration(startTime);
+    qtau1_vector.push_back(duration_query1);
     if(config.opt){
         compute_ppr_with_fwdidx_opt(graph, rsum);
         total_rsum+= rsum*(1-config.alpha);
@@ -1379,6 +1383,8 @@ void fora_query_basic(int v, const Graph& graph){
         total_rsum+= rsum*(1-config.alpha);
     }
 
+    auto duration_query2 = get_duration(startTime);
+    qtau2_vector.push_back(duration_query2-duration_query1);
 #ifdef CHECK_PPR_VALUES
     display_ppr();
 #endif
@@ -1438,7 +1444,7 @@ void fora_query_lazy_dynamic(int v, const Graph& graph, double theta){
     qtau2_vector.push_back(duration_query2-duration_query1);
     // qtau2 = max(duration_query2-duration_query1, qtau2);
     if(config.show_each<10){
-        INFO(duration_query2-duration_query1);
+        cout<<" Random walk time: "<<(duration_query2-duration_query1)<<endl;
     }
 	Timer timer(FORA_QUERY);
     // compute_ppr_with_fwdidx(graph);
@@ -2773,6 +2779,23 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         auto result = simulator_FIFO(list_query, list_update);
         final_throughput_ori.push_back(result.first);
         final_response_time_ori.push_back(result.second);
+        config.mv_query = get_me_var(query_costs);
+        config.mv_update = get_me_var(update_costs);
+        qtau1 = get_me_var(qtau1_vector).first;
+        qtau2 = get_me_var(qtau2_vector).first;
+
+
+        string filename = config.graph_location + "result.txt";
+        ofstream queryfile(filename, ios::app);
+        queryfile<<"***average: "<<qtau1<<"  "<<qtau2<<"  "<<endl;
+        // queryfile<<"maximum: "<<maxqtau1<<"  "<<maxqtau2<<"  "<<maxqtau3<<"  "<<maxutau1<<"  "<<maxutau2<<"  "<<endl;
+        queryfile<<" OA t_q: "<< config.mv_query.first<<"t_u: "<<
+         config.mv_update.first<<" Throughput "<< 
+         result.first<<" Average response time "<< result.second<<endl;
+        // queryfile<< " Optimized beta = "<< opt_result.first<< "  "<< opt_result.second<<endl;
+        
+        queryfile.close();
+
 	}
 	else if(config.algo == BATON){ //fora
         fora_setting(graph.n, graph.m);
@@ -2961,6 +2984,7 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
         config.rbmax = config.test_beta1*errorlimit*epsrate;
         
         
+
         display_setting();
         for(int i=0; i<dynamic_workload.size(); i++){
             if(i%config.show_each==0){
@@ -2978,11 +3002,19 @@ void dynamic_ssquery_origin(Graph& graph, vector<Query> list_query, vector<Query
 				update_count++;
 
                 
+                double errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n;
+                double epsrate=1;
+                config.test_beta1 = 1.0/2.0;
+                config.rbmax = config.test_beta1*errorlimit*epsrate;
+
 
 				// if(graph.n < 300000){
 				// 	errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n*10;
                 //     // INFO(errorlimit);
 				// }
+                
+                
+
 				if(errorlimit==0){
 					continue;
 				}
@@ -3490,8 +3522,9 @@ void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Quer
         double epsrate=1;
         
         config.rbmax = config.beta2*errorlimit*epsrate;
-        // config.rbmax = errorlimit*epsrate;
+        // config.rbmax = 1.0/20.0*errorlimit*epsrate;
         config.beta = config.beta1*config.beta;
+        
         
         Timer timer(0);
         display_setting();
@@ -3516,6 +3549,13 @@ void dynamic_ssquery_with_op(Graph& graph, vector<Query> list_query, vector<Quer
 				// 	errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n*10;
                 //     // INFO(errorlimit);
 				// }
+
+                
+                // double errorlimit=double(std::max(1,(int)(graph.g[u].size())))/graph.n;
+                // double epsrate=1;
+                // config.test_beta1 = 1.0/2.0;
+                // config.rbmax = config.test_beta1*config.rbmax;
+                
 				if(errorlimit==0){
 					continue;
 				}

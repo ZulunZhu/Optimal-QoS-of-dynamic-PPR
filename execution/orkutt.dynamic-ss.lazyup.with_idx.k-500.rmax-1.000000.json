@@ -1,0 +1,52 @@
+{
+    "start_time": "2022-09-28 16:39:05",
+    "end_time": "2022-09-28 22:50:39",
+    "command_line": " dynamic-ss --algo lazyup --epsilon 0.5 --prefix ..\/data\/ --dataset orkutt --lambdaq 0.1 --rate 8 --timewin 1000 --with_idx",
+    "config": {
+        "graph_alias": "orkutt",
+        "action": "dynamic-ss",
+        "alpha": "0.20000000000000001",
+        "pfail": "3.254544075802237e-07",
+        "epsilon": "0.5",
+        "delta": "3.254544075802237e-07",
+        "idx": "true",
+        "k": "500",
+        "rand-walk & push cost ratio": "8",
+        "query-size": "200",
+        "algo": "lazyup",
+        "rmax": "2.7208666788103849e-09",
+        "rmax-scale": "1",
+        "omega": "480288183.85853952",
+        "result-dir": ".\/\/execution\/"
+    },
+    "result": {
+        "n": "0",
+        "m": "0",
+        "avg query time(s\/q)": "0",
+        "total memory usage(MB)": "0",
+        "total time usage(s)": "0",
+        "total time on rand-walks(s)": "0",
+        "total time on propagation(s)": "0",
+        "total time on sorting top-k ppr(s)": "0",
+        "total time ratio on rand-walks(%)": "0",
+        "total time ratio on propagation(%)": "0",
+        "total number of rand-walks": "0",
+        "total number of rand-walk idx used": "0",
+        "total usage ratio of rand-walk idx": "0",
+        "topk max absolute error": "-nan",
+        "topk avg absolute error": "-nan",
+        "topk max relative error": "-nan",
+        "topk avg relative error": "-nan",
+        "topk precision": "-nan",
+        "topk recall": "-nan"
+    },
+    "timer": {
+        "0": "22134.242431316001",
+        "3": "1043.3750293390001",
+        "5": "760.03774981699996",
+        "6": "279.84590736500002",
+        "11": "0.0030364110000000001",
+        "12": "0.0073658409999999997",
+        "13": "8110.7586293550003"
+    }
+}

@@ -64,7 +64,7 @@ class ConstrainedFunctionType
     complexity[0] = config.omega;
     complexity[1] = (config.lambda_u*config.edges*(config.nodes*config.rbmax+1))/
     (config.lambda_q*(1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega);
-    complexity[2] = config.edges/(config.alpha*config.nodes);
+    complexity[2] = config.edges/(config.alpha);
     complexity[3] = config.edges/(config.nodes*config.alpha*config.rbmax);
     complexity[4] = config.nodes; 
 
@@ -93,7 +93,7 @@ class ConstrainedFunctionType
     complexity_scale[0] = config.omega/var(0,0);
     complexity_scale[1] = (config.lambda_u*var(0,0)*config.edges*(var(0,1)*config.nodes*config.rbmax+1))/
     (config.lambda_q*(1-config.theta)*epsilon*config.delta*config.nodes*pow(config.alpha,2)*config.omega);
-    complexity_scale[2] = (var(0,0)*config.edges)/(config.alpha*config.nodes);
+    complexity_scale[2] = (var(0,0)*config.edges)/(config.alpha);
     complexity_scale[3] = config.edges/(var(0,1)*config.nodes*config.alpha*config.rbmax);
     complexity_scale[4] = config.nodes;
     double t_q = 0;
@@ -230,7 +230,7 @@ class ConstrainedFunctionType
     t_u = get_qu(x).second;
     switch (i){
       case 0: if (config.lambda_u*t_u+config.lambda_q*t_q-1>0){
-        return (config.lambda_u*t_u+config.lambda_q*t_q-1)*10;
+        return (config.lambda_u*t_u+config.lambda_q*t_q-1)*1000;
         break;
       }
       else{
@@ -238,7 +238,7 @@ class ConstrainedFunctionType
         break;
       }
       case 1: if (-x(0,0)>0){
-        return (-x(0,0))*100;
+        return (-x(0,0))*1000;
         break;
       }
       else{
@@ -246,7 +246,7 @@ class ConstrainedFunctionType
         break;
       }
       case 2: if (-x(0,1)>0){
-        return (-x(0,1))*100;
+        return (-x(0,1))*1000;
         break;
       }
       else{
@@ -332,9 +332,10 @@ pair<double,double> improve_throughput()
   queryfile << "======Tau0 is " <<tau[0]<<" "<< tau[1]<<" "<<tau[2]<<" "<<tau[3]<<" "<<tau[4]<<
     " "<<endl;
   queryfile <<" complexity is "<<f.complexity[0]<<" "<<f.complexity[1]<<" "<<f.complexity[2]<<" "<<f.complexity[3]<<" "<<f.complexity[4]<<endl;
+  queryfile<<"variance tq is "<< config.mv_query.second <<"  "<<" variance tu is "<< config.mv_update.second<<endl;
   queryfile<<"Original tq is "<< f.get_qu(original).first<<"  Original tu is "<< f.get_qu(original).second<<endl;
   queryfile<<"optimal tq is "<< f.get_qu(x).first<<"  Optimal tu is "<< f.get_qu(x).second<<endl;
-  queryfile << "Constrain is " << x<< " "<<f.EvaluateConstraint(0,x)<< " "<<f.EvaluateConstraint(1,x)<< " "<<f.EvaluateConstraint(2,x)<< " "<<f.EvaluateConstraint(3,x)<< " "<<endl;
+  queryfile << "Constrain is " << x<< " "<<f.EvaluateConstraint(0,x)<< " "<<f.EvaluateConstraint(1,x)<< " "<<f.EvaluateConstraint(2,x)<<endl;
   queryfile << "original fx " << f.Evaluate(original) <<" "<<endl;
   queryfile << "Minimum of the function is " << f.Evaluate(x)<<endl;
   queryfile.close();

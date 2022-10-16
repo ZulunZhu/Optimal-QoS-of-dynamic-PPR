@@ -1,0 +1,49 @@
+{
+    "start_time": "2022-10-12 01:07:10",
+    "end_time": "2022-10-12 16:49:03",
+    "command_line": " dynamic-ss --algo fora --epsilon 0.5 --prefix ..\/data\/ --dataset twitter --lambdaq 0.01 --rate 0.25 --timewin 10000 --with_idx",
+    "config": {
+        "graph_alias": "twitter",
+        "action": "dynamic-ss",
+        "alpha": "0.20000000000000001",
+        "pfail": "2.4008318402159982e-08",
+        "epsilon": "0.5",
+        "delta": "2.4008318402159982e-08",
+        "idx": "true",
+        "k": "500",
+        "rand-walk & push cost ratio": "8",
+        "query-size": "200",
+        "algo": "fora",
+        "rmax": "2.7332823496691538e-10",
+        "rmax-scale": "1",
+        "omega": "7596538975.207654",
+        "result-dir": ".\/\/execution\/"
+    },
+    "result": {
+        "n": "0",
+        "m": "0",
+        "avg query time(s\/q)": "0",
+        "total memory usage(MB)": "0",
+        "total time usage(s)": "0",
+        "total time on rand-walks(s)": "0",
+        "total time on propagation(s)": "0",
+        "total time on sorting top-k ppr(s)": "0",
+        "total time ratio on rand-walks(%)": "0",
+        "total time ratio on propagation(%)": "0",
+        "total number of rand-walks": "0",
+        "total number of rand-walk idx used": "0",
+        "total usage ratio of rand-walk idx": "0",
+        "topk max absolute error": "-nan",
+        "topk avg absolute error": "-nan",
+        "topk max relative error": "-nan",
+        "topk avg relative error": "-nan",
+        "topk precision": "-nan",
+        "topk recall": "-nan"
+    },
+    "timer": {
+        "0": "56029.499025085999",
+        "3": "4608.7368357659998",
+        "5": "3897.6200203230001",
+        "6": "689.73816286199997"
+    }
+}

@@ -1,0 +1,52 @@
+{
+    "start_time": "2022-10-14 17:48:46",
+    "end_time": "2022-10-14 17:48:49",
+    "command_line": " dynamic-ss --algo lazyup --epsilon 0.5 --prefix ..\/data\/ --dataset webstanford --lambdaq 10 --rate 0.125 --timewin 10 --with_idx",
+    "config": {
+        "graph_alias": "webstanford",
+        "action": "dynamic-ss",
+        "alpha": "0.20000000000000001",
+        "pfail": "3.5473068846132018e-06",
+        "epsilon": "0.5",
+        "delta": "3.5473068846132018e-06",
+        "idx": "true",
+        "k": "500",
+        "rand-walk & push cost ratio": "8",
+        "query-size": "200",
+        "algo": "lazyup",
+        "rmax": "9.8250254864295589e-08",
+        "rmax-scale": "1",
+        "omega": "37331049.942227691",
+        "result-dir": ".\/\/execution\/"
+    },
+    "result": {
+        "n": "0",
+        "m": "0",
+        "avg query time(s\/q)": "0",
+        "total memory usage(MB)": "0",
+        "total time usage(s)": "0",
+        "total time on rand-walks(s)": "0",
+        "total time on propagation(s)": "0",
+        "total time on sorting top-k ppr(s)": "0",
+        "total time ratio on rand-walks(%)": "0",
+        "total time ratio on propagation(%)": "0",
+        "total number of rand-walks": "0",
+        "total number of rand-walk idx used": "0",
+        "total usage ratio of rand-walk idx": "0",
+        "topk max absolute error": "-nan",
+        "topk avg absolute error": "-nan",
+        "topk max relative error": "-nan",
+        "topk avg relative error": "-nan",
+        "topk precision": "-nan",
+        "topk recall": "-nan"
+    },
+    "timer": {
+        "0": "1.67324904",
+        "3": "1.5411812199999999",
+        "5": "1.080892739",
+        "6": "0.41945779999999999",
+        "11": "4.2429999999999999e-06",
+        "12": "3.9635999999999998e-05",
+        "13": "0.061640858999999999"
+    }
+}
