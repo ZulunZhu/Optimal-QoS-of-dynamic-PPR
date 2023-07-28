@@ -124,6 +124,12 @@ int main(int argc, char *argv[]) {
         }else if (arg == "--lambdaq") {
         config.lambda_q = atof(argv[i + 1]);
         INFO(config.lambda_q);
+        }else if (arg == "--distribution") {
+        config.distribution = string(argv[i + 1]);
+        INFO(config.distribution);
+        }else if (arg == "--esf") {
+        config.e_sf = atof(argv[i + 1]);
+        INFO(config.e_sf);
         }else if (arg == "--rate") {
         config.rate = atof(argv[i + 1]);
         INFO(config.rate);
@@ -142,6 +148,8 @@ int main(int argc, char *argv[]) {
             config.test_throughput = true;
         }else if(arg == "--multithread"){
              config.multithread = true;
+        }else if(arg == "--shuffle"){
+             config.shuffle = true;
         }
         else if(arg == "--result_dir"){
             config.exe_result_dir = string(argv[i + 1]);
@@ -162,6 +170,7 @@ int main(int argc, char *argv[]) {
         }
         else if (arg == "--check_size"){
             config.check_size = atoi(argv[i+1]);
+            INFO(config.check_size);
         }
         else if (arg == "--check_from"){
             config.check_from = atoi(argv[i+1]);
@@ -309,11 +318,11 @@ int main(int argc, char *argv[]) {
         // if(config.multithread){
         //     init_multi_setting(graph.n);
         // }
-
+        vector<Query> list_query = generate_query_workload_with_timestamp(config.lambda_q, config.simulation_time, DQUERY,graph);
         if(config.with_rw_idx)
             deserialize_idx();
             
-        topk(graph);
+        topk(graph,list_query);
 		cout<<"Cycle: "<<cycle<<endl;
 		cout<<"Randomwalk: "<<rw_count<<endl;
 		cout<<"Boundupdate: "<<bound_update_count<<endl;
@@ -579,7 +588,6 @@ int main(int argc, char *argv[]) {
             // response time
             for(int i = 0; i < config.runs; i++){
                
-
                 // Initialize the graph
                 config.graph_location = config.get_graph_folder();
                 Graph graph(config.graph_location);
@@ -604,16 +612,39 @@ int main(int argc, char *argv[]) {
                 vector<Query> list_query = generate_query_workload_with_timestamp(config.lambda_q, config.simulation_time, DQUERY,graph);
                 
                 vector<Query> list_update = generate_query_workload_with_timestamp(config.lambda_u, config.simulation_time, DUPDATE,graph);
+                vector<pair<int,int>> updates;
+                regenerate_updates(graph, updates,list_update);
+
+                // if(config.graph_alias=="wiki"){
+                //     list_query = load_query_workload_with_timestamp(DQUERY);
+                //     list_update = load_update_workload_with_timestamp(graph, updates, DUPDATE);
+                // }
+                // cout<<"list_query[i].init_time"<<list_query[1].init_time<<endl;
+                // cout<<"list_update[i].init_time"<<list_update[1].init_time<<endl;
+
+                merge_dynamic_workload(list_query, list_update);
+                for(int k=0; k<dynamic_workload.size();k++){
+                    cout<<dynamic_workload[k];
+                }
+                
+
+                cout<<"Sequence after shuffling:"<<endl;
+                if(config.shuffle){
+                    shuffle_sequence(graph, list_query, list_update,updates);
+                }
+
                 merge_dynamic_workload(list_query, list_update);
                 // cout << "listqqqq:" << list_query[1000].init_time<< "listuuu"<< list_update.size()<<endl;
-                
+                for(int k=0; k<dynamic_workload.size();k++){
+                    cout<<dynamic_workload[k];
+                }
 
                 if(config.adaptive){
                     set_optimal_beta(config,graph);
                     rebuild_idx(graph);
                 }
-                vector<pair<int,int>> updates;
-                regenerate_updates(graph, updates,list_update);
+                
+                
 
                 clock_t begin = clock(); 
                 INFO(config.alter_idx);
@@ -621,6 +652,10 @@ int main(int argc, char *argv[]) {
                 clock_t end = clock();
                 time_cost = double(end - begin) / CLOCKS_PER_SEC;
                 
+
+               
+                
+
                 if(config.algo == LAZYUP){
                     // Initialize the graph
                     config.graph_location = config.get_graph_folder();
@@ -653,7 +688,7 @@ int main(int argc, char *argv[]) {
             
             if(with_op ==true){
                 queryfile<<" IA result is throughput: "<<get_me_var(final_throughput).first<<
-            " response time: "<<get_me_var(final_response_time).first*1000<<" ms"<<endl;
+            " response time: "<<get_me_var(final_response_time).first*1000<<" ms"<<" esf= "<<config.e_sf<<endl;
 
             }
             if(config.algo == LAZYUP){
@@ -675,31 +710,40 @@ int main(int argc, char *argv[]) {
             }
     }
 	else if(config.action == CALCULATE_ACCURACY){
-		vector<string> algos = {FORA, BATON, FORA_NO_INDEX, PARTUP, LAZYUP, RESACC};
+		vector<string> algos = {FORA,LAZYUP};
 		vector<vector<PPR_Result>> exact_ppr_result;
-		std::string exact_path = "result/"+config.graph_alias+"/"+"exact"+".txt";
+		// std::string exact_path = "result/"+config.graph_alias+"/"+"exact"+".txt";
+		// std::string result_path = "result/"+config.graph_alias+"/"+"C_accuracy"+".txt";
+        config.graph_location = config.get_graph_folder();
+        std::string exact_path = config.graph_location +"/exact.txt";;
+		std::string result_path = config.graph_location +"/C_accuracy.txt"; 
+
 		
-		std::string result_path = "result/"+config.graph_alias+"/"+"C_accuracy"+".txt";
-		std::string top_result_path = "result/"+config.graph_alias+"/"+"C_accuracy_topk"+".txt";
-		ofstream result_file, top_result_file;
-		result_file.open(result_path);
-		top_result_file.open(top_result_path);
-		config.graph_location = config.get_graph_folder();
+        
+        ofstream result_file(result_path, ios::app);
+		// ofstream result_file;
+		// result_file.open(result_path);
+		
+		
 		Graph graph(config.graph_location);
-		if(access(exact_path.c_str(), NULL)==-1)
-			exit(1);
-		else
+		if(access(exact_path.c_str(), NULL)==-1){
+            cerr<<"Exact Load error!"<<endl;
+            exit(1);
+        }else
 			load_ppr_result(exact_ppr_result, exact_path);		
 		for (auto algo : algos){
-			std::string prefix = "result/"+config.graph_alias+"/"+algo+".txt";
+			std::string prefix = config.graph_location +"/"+algo+".txt";;
 			result_file<<algo<<endl;
-			if(access(prefix.c_str(), NULL)==-1)
-				continue;
+			if(access(prefix.c_str(), NULL)==-1){
+                cerr<<"Algo Load error!"<<endl;
+                continue;
+            }
+				
 			vector<vector<PPR_Result>> algo_ppr_result;
 			load_ppr_result(algo_ppr_result, prefix);
 			INFO(algo);
 			calc_accuracy(algo_ppr_result, exact_ppr_result, result_file, graph.n);
-			result_file<<"end"<<endl;
+			result_file<<" esf ="<< config.e_sf<<"end"<<endl;
 		}
 	}
     else {

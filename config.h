@@ -122,6 +122,7 @@ public:
     bool multithread = false;
     bool with_rw_idx = false;
 	bool with_baton = false;
+    bool shuffle = false;
 	bool exact = false;
 	bool reuse = false;
 	bool power_iteration=false;
@@ -138,7 +139,7 @@ public:
     double omega; // 1/omega  omega = # of random walk
     double rmax; // identical to r_max
 
-
+    string distribution = "poisson";
     double lambda_q = 30; //ratio of query
     double lambda_u = 200; //ratio of update
     double rate = 1.0; //ratio of query/update
@@ -146,14 +147,14 @@ public:
     int runs = 1;//multiple runs
     int linear_runs = 5;
     double test_beta1 = 1.0;
-    double beta1 = 1.0, beta2 = 1.0; //the optimization parameters
+    double beta1 = 0.1, beta2 = 3.0; //the optimization parameters
     bool test_throughput = false; //true when test the throuput, otherwise test the response time
     double response_t = 0.5;
-
+    double e_sf = 0;
     unsigned int query_size = 200;
 	unsigned int update_size = 200;
-	unsigned int check_size = 0;
-    unsigned int check_from = 500;
+	unsigned int check_size = 10;
+    unsigned int check_from = 0;
 
 
     unsigned int max_iter_num = 100;

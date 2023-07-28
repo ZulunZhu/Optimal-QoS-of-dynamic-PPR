@@ -211,7 +211,7 @@ class ConstrainedFunctionType
         break;
       }
       case 1: if (-x(0,0)>0){
-        return (-x(0,0))*100;
+        return (-x(0,0))*100000;
         break;
       }
       else{
@@ -219,7 +219,7 @@ class ConstrainedFunctionType
         break;
       }
       case 2: if (-x(0,1)>0){
-        return (-x(0,1))*100;
+        return (-x(0,1))*100000;
         break;
       }
       else{

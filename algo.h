@@ -1405,7 +1405,7 @@ double rmax, double* residue, double* reserve, unordered_set<int> k1HopLayer){
 }
 
 void forward_local_update_linear_topk(int s, const Graph &graph, double& rsum, double rmax, double lowest_rmax, vector<int>& forward_from){
-    double myeps = rmax;
+    double myeps = 0.5*rmax;
 	if(config.with_baton == true){
 		myeps = config.beta/(config.omega*config.alpha);
 		//lowest_rmax = myeps/config.n;

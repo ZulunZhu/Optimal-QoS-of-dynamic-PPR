@@ -156,6 +156,7 @@ inline void load_ppr_result( vector<vector<PPR_Result>> & ppr_matrix, string fil
 	for(long i = 0; i < query_num;  i++){
         int _ranking, _node, value_num;
 		double _ppr_result;
+        
 		fscanf(fin, "%d", &value_num);
 		for(long j = 0;  j < value_num; j++){
 			fscanf(fin, "%d%d%lf", &_ranking, &_node, &_ppr_result);
@@ -228,7 +229,7 @@ ofstream &outputfile, int k){
 	}
 	//cout<<endl;
 	outputfile<<rela_err<<"\t"<<ab_err<<"\t"<<NDCG<<"\t"<<precision<<"\t"<<endl;
-    INFO(algo_ppr_matrix[0].size(),exact_ppr_matrix[0].size());
+    INFO(algo_ppr_matrix[2].size(),exact_ppr_matrix[2].size());
 	INFO(rela_err, ab_err, NDCG, precision, fail_number);
 }
 
